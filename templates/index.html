@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Kredit Prapurna BNI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .tab-content { padding-top: 20px; }
+        /* (PERBAIKAN) Sembunyikan field dinamis by default */
+        .slik-facility-hidden { display: none; }
+        .mitigasi-hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h2>Formulir Input Data Debitur Prapurna</h2>
+            <p>Silakan isi data debitur dengan lengkap di bawah ini. Gunakan tab untuk berpindah kategori.</p>
+            
+            <form method="POST" action="/simpan">
+                <input type="hidden" name="debitur_id" value="{{ debitur_id | default('', true) }}">
+
+                <ul class="nav nav-tabs" id="formTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pemohon-tab" data-bs-toggle="tab" data-bs-target="#pemohon" type="button" role="tab" aria-controls="pemohon" aria-selected="true">A. Data Pemohon</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pekerjaan-tab" data-bs-toggle="tab" data-bs-target="#pekerjaan" type="button" role="tab" aria-controls="pekerjaan" aria-selected="false">B. Pekerjaan</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pengajuan-slik-tab" data-bs-toggle="tab" data-bs-target="#pengajuan-slik" type="button" role="tab" aria-controls="pengajuan-slik" aria-selected="false">C/D. Pengajuan & SLIK</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="verifikasi-tab" data-bs-toggle="tab" data-bs-target="#verifikasi" type="button" role="tab" aria-controls="verifikasi" aria-selected="false">E/F. Verifikasi</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="usulan-tab" data-bs-toggle="tab" data-bs-target="#usulan" type="button" role="tab" aria-controls="usulan" aria-selected="false">G. Usulan Kredit</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="formTabsContent">
+
+                    <div class="tab-pane fade show active" id="pemohon" role="tabpanel" aria-labelledby="pemohon-tab">
+                        <div class="mb-3">
+                            <label for="nama_pemohon" class="form-label">Nama Pemohon</label>
+                            <input type="text" class="form-control" id="nama_pemohon" name="nama_pemohon" value="{{ data.get('nama_pemohon', '') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="no_telp_pemohon" class="form-label">No. Telepon/HP</label>
+                            <input type="tel" class="form-control" id="no_telp_pemohon" name="no_telp_pemohon" value="{{ data.get('no_telp_pemohon', '') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="alamat_ktp_pemohon" class="form-label">Alamat Sesuai KTP</label>
+                            <textarea class="form-control" id="alamat_ktp_pemohon" name="alamat_ktp_pemohon" rows="2" required>{{ data.get('alamat_ktp_pemohon', '') }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="status_rumah_pemohon" class="form-label">Status Rumah</label>
+                                <input type="text" class="form-control" id="status_rumah_pemohon" name="status_rumah_pemohon" value="{{ data.get('status_rumah_pemohon', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="lama_tinggal_tahun" class="form-label">Lama Tinggal (Tahun)</label>
+                                <input type="number" class="form-control" id="lama_tinggal_tahun" name="lama_tinggal_tahun" value="{{ data.get('lama_tinggal_tahun', '') }}" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="lama_tinggal_bulan" class="form-label">Lama Tinggal (Bulan)</label>
+                                <input type="number" class="form-control" id="lama_tinggal_bulan" name="lama_tinggal_bulan" value="{{ data.get('lama_tinggal_bulan', '') }}" min="0" max="11">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tgl_lahir_pemohon" class="form-label">Tanggal Lahir</label>
+                                <input type="date" class="form-control" id="tgl_lahir_pemohon" name="tgl_lahir_pemohon" value="{{ data.get('tgl_lahir_pemohon', '') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="usia_pemohon" class="form-label">Usia Pemohon</label>
+                                <input type="number" class="form-control" id="usia_pemohon" name="usia_pemohon" value="{{ data.get('usia_pemohon', '') }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="no_ktp_pemohon" class="form-label">No. KTP (NIK)</label>
+                                <input type="text" class="form-control" id="no_ktp_pemohon" name="no_ktp_pemohon" value="{{ data.get('no_ktp_pemohon', '') }}" required minlength="16" maxlength="16">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tgl_terbit_ktp" class="form-label">Tgl Terbit KTP</label>
+                                <input type="date" class="form-control" id="tgl_terbit_ktp" name="tgl_terbit_ktp" value="{{ data.get('tgl_terbit_ktp', '') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status_perkawinan_pemohon" class="form-label">Status Perkawinan</label>
+                            <select class="form-select" id="status_perkawinan_pemohon" name="status_perkawinan_pemohon" required>
+                                <option value="" {% if not data.get('status_perkawinan_pemohon') %}selected{% endif %}>-- Pilih Status --</option>
+                                <option value="Belum Menikah" {% if data.get('status_perkawinan_pemohon') == 'Belum Menikah' %}selected{% endif %}>Belum Menikah</option>
+                                <option value="Menikah" {% if data.get('status_perkawinan_pemohon') == 'Menikah' %}selected{% endif %}>Menikah</option>
+                                <option value="Janda/Duda" {% if data.get('status_perkawinan_pemohon') == 'Janda/Duda' %}selected{% endif %}>Janda/Duda</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pekerjaan" role="tabpanel" aria-labelledby="pekerjaan-tab">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="jenis_pekerjaan_pemohon" class="form-label">Jenis Pekerjaan</label>
+                                <input type="text" class="form-control" id="jenis_pekerjaan_pemohon" name="jenis_pekerjaan_pemohon" value="{{ data.get('jenis_pekerjaan_pemohon', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nama_instansi_pemohon" class="form-label">Nama Instansi</label>
+                                <input type="text" class="form-control" id="nama_instansi_pemohon" name="nama_instansi_pemohon" value="{{ data.get('nama_instansi_pemohon', '') }}" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tgl_mulai_kerja" class="form-label">Tgl Mulai Kerja</label>
+                                <input type="date" class="form-control" id="tgl_mulai_kerja" name="tgl_mulai_kerja" value="{{ data.get('tgl_mulai_kerja', '') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lama_kerja_tahun" class="form-label">Lama Kerja (Tahun)</label>
+                                <input type="number" class="form-control" id="lama_kerja_tahun" name="lama_kerja_tahun" value="{{ data.get('lama_kerja_tahun', '') }}" min="0" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="no_sk_cpns" class="form-label">No. SK CPNS</label>
+                                <input type="text" class="form-control" id="no_sk_cpns" name="no_sk_cpns" value="{{ data.get('no_sk_cpns', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tgl_sk_cpns" class="form-label">Tgl SK CPNS</label>
+                                <input type="date" class="form-control" id="tgl_sk_cpns" name="tgl_sk_cpns" value="{{ data.get('tgl_sk_cpns', '') }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="golongan_saat_ini" class="form-label">Golongan Saat Ini</label>
+                                <input type="text" class="form-control" id="golongan_saat_ini" name="golongan_saat_ini" value="{{ data.get('golongan_saat_ini', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="no_sk_golongan" class="form-label">No. SK Golongan</label>
+                                <input type="text" class="form-control" id="no_sk_golongan" name="no_sk_golongan" value="{{ data.get('no_sk_golongan', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="tgl_sk_golongan" class="form-label">Tgl SK Golongan</label>
+                                <input type="date" class="form-control" id="tgl_sk_golongan" name="tgl_sk_golongan" value="{{ data.get('tgl_sk_golongan', '') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="jabatan_pemohon" class="form-label">Jabatan</label>
+                            <input type="text" class="form-control" id="jabatan_pemohon" name="jabatan_pemohon" value="{{ data.get('jabatan_pemohon', '') }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="alamat_kantor_pemohon" class="form-label">Alamat Kantor</label>
+                            <textarea class="form-control" id="alamat_kantor_pemohon" name="alamat_kantor_pemohon" rows="2">{{ data.get('alamat_kantor_pemohon', '') }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nip_pemohon" class="form-label">NIP Pemohon</label>
+                                <input type="text" class="form-control" id="nip_pemohon" name="nip_pemohon" value="{{ data.get('nip_pemohon', '') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tgl_pensiun_pemohon" class="form-label">Tgl Pensiun (BUP)</label>
+                                <input type="date" class="form-control" id="tgl_pensiun_pemohon" name="tgl_pensiun_pemohon" value="{{ data.get('tgl_pensiun_pemohon', '') }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pengajuan-slik" role="tabpanel" aria-labelledby="pengajuan-slik-tab">
+                        
+                        <h4 class="mb-3">C. Pengajuan Kredit</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="plafon_kredit_dimohon" class="form-label">Plafon Dimohon (Rp)</label>
+                                <input type="text" class="form-control" id="plafon_kredit_dimohon" name="plafon_kredit_dimohon" value="{{ data.get('plafon_kredit_dimohon', '') }}" required data-type="rupiah">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="jangka_waktu_dimohon_bulan" class="form-label">Jangka Waktu (Bulan)</label>
+                                <input type="number" class="form-control" id="jangka_waktu_dimohon_bulan" name="jangka_waktu_dimohon_bulan" value="{{ data.get('jangka_waktu_dimohon_bulan', '') }}" required min="1">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tujuan_kredit" class="form-label">Tujuan Kredit</label>
+                            <input type="text" class="form-control" id="tujuan_kredit" name="tujuan_kredit" value="{{ data.get('tujuan_kredit', '') }}">
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <h4 class="mb-3">D. Data SLIK</h4>
+                        <div class="mb-3">
+                            <label for="tgl_slik" class="form-label">Tanggal Cek SLIK</label>
+                            <input type="date" class="form-control" id="tgl_slik" name="tgl_slik" value="{{ data.get('tgl_slik', '') }}">
+                        </div>
+                        
+                        <p class="fw-bold">Data Fasilitas Aktif 1</p>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="slik_bank_1_jenis" class="form-label">Jenis</label>
+                                <input type="text" class="form-control" id="slik_bank_1_jenis" name="slik_bank_1_jenis" value="{{ data.get('slik_bank_1_jenis', '') }}">
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="slik_bank_1_nama" class="form-label">Nama Bank</label>
+                                <input type="text" class="form-control" id="slik_bank_1_nama" name="slik_bank_1_nama" value="{{ data.get('slik_bank_1_nama', '') }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="slik_bank_1_maks" class="form-label">Plafon (Rp)</label>
+                                <input type="text" class="form-control" id="slik_bank_1_maks" name="slik_bank_1_maks" value="{{ data.get('slik_bank_1_maks', '') }}" data-type="rupiah">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="slik_bank_1_outs" class="form-label">Outstanding (Rp)</label>
+                                <input type="text" class="form-control" id="slik_bank_1_outs" name="slik_bank_1_outs" value="{{ data.get('slik_bank_1_outs', '') }}" data-type="rupiah">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="slik_bank_1_coll" class="form-label">Kolektibilitas</label>
+                                <input type="text" class="form-control" id="slik_bank_1_coll" name="slik_bank_1_coll" value="{{ data.get('slik_bank_1_coll', '') }}">
+                            </div>
+                        </div>
+
+                        <div id="slik-facilities-container">
+                            
+                            {% for i in range(2, 11) %}
+                                {% set nama_key = 'slik_bank_' ~ i ~ '_nama' %}
+                                {% set jenis_key = 'slik_bank_' ~ i ~ '_jenis' %}
+                                {% set maks_key = 'slik_bank_' ~ i ~ '_maks' %}
+                                {% set outs_key = 'slik_bank_' ~ i ~ '_outs' %}
+                                {% set coll_key = 'slik_bank_' ~ i ~ '_coll' %}
+
+                                <div id="slik-facility-{{ i }}" class="slik-facility-hidden" 
+                                     {% if data.get(nama_key) %}style="display: block;"{% endif %}>
+                                    <hr>
+                                    <p class="fw-bold">Data Fasilitas Aktif {{ i }}</p>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="{{ jenis_key }}" class="form-label">Jenis</label>
+                                            <input type="text" class="form-control" id="{{ jenis_key }}" name="{{ jenis_key }}" value="{{ data.get(jenis_key, '') }}">
+                                        </div>
+                                        <div class="col-md-8 mb-3">
+                                            <label for="{{ nama_key }}" class="form-label">Nama Bank</label>
+                                            <input type="text" class="form-control" id="{{ nama_key }}" name="{{ nama_key }}" value="{{ data.get(nama_key, '') }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="{{ maks_key }}" class="form-label">Plafon (Rp)</label>
+                                            <input type="text" class="form-control" id="{{ maks_key }}" name="{{ maks_key }}" value="{{ data.get(maks_key, '') }}" data-type="rupiah">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="{{ outs_key }}" class="form-label">Outstanding (Rp)</label>
+                                            <input type="text" class="form-control" id="{{ outs_key }}" name="{{ outs_key }}" value="{{ data.get(outs_key, '') }}" data-type="rupiah">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="{{ coll_key }}" class="form-label">Kolektibilitas</label>
+                                            <input type="text" class="form-control" id="{{ coll_key }}" name="{{ coll_key }}" value="{{ data.get(coll_key, '') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-2 mb-3">
+                            <button type="button" id="add-slik-facility" class="btn btn-sm btn-outline-primary">+ Tambah Fasilitas</button>
+                        </div>
+
+
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="toggle-mitigasi" name="mitigasi_aktif" value="ya">
+                            <label class="form-check-label fw-bold" for="toggle-mitigasi">
+                                Mitigasi SLIK (Aktifkan jika ada)
+                            </label>
+                        </div>
+                        
+                        <div id="mitigasi-fields" class="mitigasi-hidden mt-3">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="mitigasi_slik_no_surat" class="form-label">No. Surat Lunas</label>
+                                    <input type="text" class="form-control" id="mitigasi_slik_no_surat" name="mitigasi_slik_no_surat" value="{{ data.get('mitigasi_slik_no_surat', '') }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="mitigasi_slik_tgl_surat" class="form-label">Tgl Surat Lunas</label>
+                                    <input type="date" class="form-control" id="mitigasi_slik_tgl_surat" name="mitigasi_slik_tgl_surat" value="{{ data.get('mitigasi_slik_tgl_surat', '') }}">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="isi_perihal_surat" class="form-label">Isi Perihal Surat</label>
+                                <input type="text" class="form-control" id="isi_perihal_surat" name="isi_perihal_surat" value="{{ data.get('isi_perihal_surat', '') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="verifikasi" role="tabpanel" aria-labelledby="verifikasi-tab">
+                        <h4 class="mb-3">E. Verifikasi Penghasilan & Taspen</h4>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="payroll_bank" class="form-label">Payroll di Bank</label>
+                                <input type="text" class="form-control" id="payroll_bank" name="payroll_bank" value="{{ data.get('payroll_bank', '') }}">
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="payroll_no_rek" class="form-label">No. Rekening Payroll</label>
+                                <input type="text" class="form-control" id="payroll_no_rek" name="payroll_no_rek" value="{{ data.get('payroll_no_rek', '') }}">
+                            </div>
+                        </div>
+                        <p class="fw-bold mt-3">Verifikasi Gaji 3 Bulan Terakhir</p>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Bulan 1</label>
+                                <input type="text" class="form-control mb-1" name="gaji_bulan_1_nama" placeholder="Nama Bulan (cth: Jan 2024)" value="{{ data.get('gaji_bulan_1_nama', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Jumlah (Rp)</label>
+                                <input type="text" class="form-control mb-1" id="gaji_bulan_1_jumlah" name="gaji_bulan_1_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_1_jumlah', '') }}" required data-type="rupiah">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Bulan 2</label>
+                                <input type="text" class="form-control mb-1" name="gaji_bulan_2_nama" placeholder="Nama Bulan (cth: Feb 2024)" value="{{ data.get('gaji_bulan_2_nama', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Jumlah (Rp)</label>
+                                <input type="text" class="form-control mb-1" id="gaji_bulan_2_jumlah" name="gaji_bulan_2_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_2_jumlah', '') }}" required data-type="rupiah">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Bulan 3</label>
+                                <input type="text" class="form-control mb-1" name="gaji_bulan_3_nama" placeholder="Nama Bulan (cth: Mar 2024)" value="{{ data.get('gaji_bulan_3_nama', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Jumlah (Rp)</label>
+                                <input type="text" class="form-control mb-1" id="gaji_bulan_3_jumlah" name="gaji_bulan_3_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_3_jumlah', '') }}" required data-type="rupiah">
+                            </div>
+                        </div>
+                        <p class="fw-bold mt-3">Verifikasi Taspen</p>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="estimasi_hak_pensiun" class="form-label">Estimasi Hak Pensiun (Rp)</label>
+                                <input type="text" class="form-control" id="estimasi_hak_pensiun" name="estimasi_hak_pensiun" value="{{ data.get('estimasi_hak_pensiun', '') }}" data-type="rupiah">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="taspen_tht" class="form-label">THT (Rp)</label>
+                                <input type="text" class="form-control" id="taspen_tht" name="taspen_tht" value="{{ data.get('taspen_tht', '') }}" data-type="rupiah">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="taspen_hak_pensiun" class="form-label">Hak Pensiun (Rp)</label>
+                                <input type="text" class="form-control" id="taspen_hak_pensiun" name="taspen_hak_pensiun" value="{{ data.get('taspen_hak_pensiun', '') }}" data-type="rupiah">
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <h4 class="mb-3">F. Verifikasi Pihak Ketiga (Call Memo)</h4>
+                        <div class="mb-3">
+                            <label for="tgl_call_memo" class="form-label">Tanggal Telepon</label>
+                            <input type="date" class="form-control" id="tgl_call_memo" name="tgl_call_memo" value="{{ data.get('tgl_call_memo', '') }}">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nama_bendahara" class="form-label">Nama Bendahara</label>
+                                <input type="text" class="form-control" id="nama_bendahara" name="nama_bendahara" value="{{ data.get('nama_bendahara', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="no_telp_bendahara" class="form-label">No. Telp Bendahara</label>
+                                <input type="tel" class="form-control" id="no_telp_bendahara" name="no_telp_bendahara" value="{{ data.get('no_telp_bendahara', '') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="info_gaji_bendahara" class="form-label">Info Gaji dari Bendahara</label>
+                            <input type="text" class="form-control" id="info_gaji_bendahara" name="info_gaji_bendahara" value="{{ data.get('info_gaji_bendahara', '') }}">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nama_rekan_kerja" class="form-label">Nama Rekan Kerja</label>
+                                <input type="text" class="form-control" id="nama_rekan_kerja" name="nama_rekan_kerja" value="{{ data.get('nama_rekan_kerja', '') }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="no_telp_rekan_kerja" class="form-label">No. Telp Rekan Kerja</label>
+                                <input type="tel" class="form-control" id="no_telp_rekan_kerja" name="no_telp_rekan_kerja" value="{{ data.get('no_telp_rekan_kerja', '') }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="nama_kerabat" class="form-label">Nama Kerabat</label>
+                                <input type="text" class="form-control" id="nama_kerabat" name="nama_kerabat" value="{{ data.get('nama_kerabat', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="hubungan_kerabat" class="form-label">Hubungan</label>
+                                <input type="text" class="form-control" id="hubungan_kerabat" name="hubungan_kerabat" value="{{ data.get('hubungan_kerabat', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="no_telp_kerabat" class="form-label">No. Telp Kerabat</label>
+                                <input type="tel" class="form-control" id="no_telp_kerabat" name="no_telp_kerabat" value="{{ data.get('no_telp_kerabat', '') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="usulan" role="tabpanel" aria-labelledby="usulan-tab">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dsr_pemohon" class="form-label">DSR Pemohon (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="dsr_pemohon" name="dsr_pemohon" value="{{ data.get('dsr_pemohon', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="program_kredit" class="form-label">Program Kredit</label>
+                                <input type="text" class="form-control" id="program_kredit" name="program_kredit" value="{{ data.get('program_kredit', '') }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="usulan_plafon_kredit" class="form-label">Usulan Plafon (Rp)</label>
+                                <input type="text" class="form-control" id="usulan_plafon_kredit" name="usulan_plafon_kredit" value="{{ data.get('usulan_plafon_kredit', '') }}" required readonly data-type="rupiah">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="usulan_jangka_waktu_bulan" class="form-label">Usulan J.Waktu (Bulan)</label>
+                                <input type="number" class="form-control" id="usulan_jangka_waktu_bulan" name="usulan_jangka_waktu_bulan" value="{{ data.get('usulan_jangka_waktu_bulan', '') }}" required min="1" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="usulan_bunga_persen" class="form-label">Usulan Bunga (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="usulan_bunga_persen" name="usulan_bunga_persen" value="{{ data.get('usulan_bunga_persen', '') }}" required min="0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="biaya_provisi_persen" class="form-label">Biaya Provisi (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="biaya_provisi_persen" name="biaya_provisi_persen" value="{{ data.get('biaya_provisi_persen', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="biaya_provisi_nominal" class="form-label">Biaya Provisi (Rp)</label>
+                                <input type="text" class="form-control" id="biaya_provisi_nominal" name="biaya_provisi_nominal" value="{{ data.get('biaya_provisi_nominal', '') }}" readonly data-type="rupiah">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="biaya_tata_laksana_persen" class="form-label">Biaya Tata Laksana (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="biaya_tata_laksana_persen" name="biaya_tata_laksana_persen" value="{{ data.get('biaya_tata_laksana_persen', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="biaya_tata_laksana_nominal" class="form-label">Biaya Tata Laksana (Rp)</label>
+                                <input type="text" class="form-control" id="biaya_tata_laksana_nominal" name="biaya_tata_laksana_nominal" value="{{ data.get('biaya_tata_laksana_nominal', '') }}" readonly data-type="rupiah">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="biaya_psjt_persen" class="form-label">Biaya PSJT (%)</label>
+                            <input type="number" step="0.01" class="form-control" id="biaya_psjt_persen" name="biaya_psjt_persen" value="{{ data.get('biaya_psjt_persen', '') }}" min="0">
+                        </div>
+                        <hr class="my-4">
+                        <h4 class="mb-3">Blokir Angsuran</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_total" class="form-label">Total (kali)</label>
+                                <input type="number" class="form-control" id="blokir_angsuran_total" name="blokir_angsuran_total" value="{{ data.get('blokir_angsuran_total', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_total_terbilang" class="form-label">Terbilang</label>
+                                <input type="text" class="form-control" id="blokir_angsuran_total_terbilang" name="blokir_angsuran_total_terbilang" value="{{ data.get('blokir_angsuran_total_terbilang', '') }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_prapurna" class="form-label">Prapurna (kali)</label>
+                                <input type="number" class="form-control" id="blokir_angsuran_prapurna" name="blokir_angsuran_prapurna" value="{{ data.get('blokir_angsuran_prapurna', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_prapurna_terbilang" class="form-label">Terbilang</terbilang>
+                                <input type="text" class="form-control" id="blokir_angsuran_prapurna_terbilang" name="blokir_angsuran_prapurna_terbilang" value="{{ data.get('blokir_angsuran_prapurna_terbilang', '') }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_pindah_gaji" class="form-label">Pindah Gaji (kali)</label>
+                                <input type="number" class="form-control" id="blokir_angsuran_pindah_gaji" name="blokir_angsuran_pindah_gaji" value="{{ data.get('blokir_angsuran_pindah_gaji', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_pindah_gaji_terbilang" class="form-label">Terbilang</label>
+                                <input type="text" class="form-control" id="blokir_angsuran_pindah_gaji_terbilang" name="blokir_angsuran_pindah_gaji_terbilang" value="{{ data.get('blokir_angsuran_pindah_gaji_terbilang', '') }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_lunas" class="form-label">Wajib (kali)</label>
+                                <input type="number" class="form-control" id="blokir_angsuran_lunas" name="blokir_angsuran_lunas" value="{{ data.get('blokir_angsuran_lunas', '') }}" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="blokir_angsuran_lunas_terbilang" class="form-label">Terbilang</label>
+                                <input type="text" class="form-control" id="blokir_angsuran_lunas_terbilang" name="blokir_angsuran_lunas_terbilang" value="{{ data.get('blokir_angsuran_lunas_terbilang', '') }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Simpan Data Debitur
+                    </button>
+                    <a href="/riwayat" class="btn btn-secondary btn-lg">Kembali ke Riwayat</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- Helper Functions untuk Rupiah ---
+        function unformatRupiah(value) {
+            return value.replace(/[^0-9]/g, '');
+        }
+        function formatRupiah(value) {
+            let number_string = value.replace(/[^0-9]/g, ''),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/g);
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        }
+        function setupRupiahInput(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = formatRupiah(input.value);
+                input.addEventListener('input', function(e) {
+                    input.value = formatRupiah(e.target.value);
+                });
+            }
+        }
+
+        // --- 1. REFERENSI ELEMEN ---
+        const tglLahirInput = document.getElementById('tgl_lahir_pemohon');
+        const usiaInput = document.getElementById('usia_pemohon');
+        const tglMulaiKerjaInput = document.getElementById('tgl_mulai_kerja');
+        const lamaKerjaInput = document.getElementById('lama_kerja_tahun');
+        const plafonDimohonInput = document.getElementById('plafon_kredit_dimohon');
+        const jangkaWaktuDimohonInput = document.getElementById('jangka_waktu_dimohon_bulan');
+        const plafonUsulanInput = document.getElementById('usulan_plafon_kredit');
+        const jangkaWaktuUsulanInput = document.getElementById('usulan_jangka_waktu_bulan');
+        const provisiPersenInput = document.getElementById('biaya_provisi_persen');
+        const provisiNominalInput = document.getElementById('biaya_provisi_nominal');
+        const tataLaksanaPersenInput = document.getElementById('biaya_tata_laksana_persen');
+        const tataLaksanaNominalInput = document.getElementById('biaya_tata_laksana_nominal');
+
+        const pairsTerbilang = [
+            { input: document.getElementById('blokir_angsuran_total'), output: document.getElementById('blokir_angsuran_total_terbilang') },
+            { input: document.getElementById('blokir_angsuran_prapurna'), output: document.getElementById('blokir_angsuran_prapurna_terbilang') },
+            { input: document.getElementById('blokir_angsuran_pindah_gaji'), output: document.getElementById('blokir_angsuran_pindah_gaji_terbilang') },
+            { input: document.getElementById('blokir_angsuran_lunas'), output: document.getElementById('blokir_angsuran_lunas_terbilang') }
+        ];
+
+        // (PERBAIKAN) Daftarkan SEMUA 10*2 field nominal SLIK
+        const nominalInputIDs = [
+            'plafon_kredit_dimohon', 'usulan_plafon_kredit',
+            'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
+            'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
+            'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
+            'slik_bank_1_maks', 'slik_bank_1_outs',
+            'slik_bank_2_maks', 'slik_bank_2_outs',
+            'slik_bank_3_maks', 'slik_bank_3_outs',
+            'slik_bank_4_maks', 'slik_bank_4_outs',
+            'slik_bank_5_maks', 'slik_bank_5_outs',
+            'slik_bank_6_maks', 'slik_bank_6_outs',
+            'slik_bank_7_maks', 'slik_bank_7_outs',
+            'slik_bank_8_maks', 'slik_bank_8_outs',
+            'slik_bank_9_maks', 'slik_bank_9_outs',
+            'slik_bank_10_maks', 'slik_bank_10_outs',
+        ];
+
+        // Referensi untuk SLIK Dinamis
+        const addSlikButton = document.getElementById('add-slik-facility');
+        const maxFacilities = 10; // 1 utama + 9 tambahan
+        let slikFacilityCounter = 2; // Counter dimulai dari 2
+        
+        // Referensi untuk Mitigasi Checkbox
+        const toggleMitigasi = document.getElementById('toggle-mitigasi');
+        const mitigasiFields = document.getElementById('mitigasi-fields');
+        const mitigasiInputs = mitigasiFields.querySelectorAll('input');
+
+        // --- 2. FUNGSI KALKULASI ---
+        function hitungUsia() {
+            if (!tglLahirInput.value) { usiaInput.value = ''; return; }
+            try {
+                const tglLahir = new Date(tglLahirInput.value);
+                const hariIni = new Date();
+                let usia = hariIni.getFullYear() - tglLahir.getFullYear();
+                const selisihBulan = hariIni.getMonth() - tglLahir.getMonth();
+                if (selisihBulan < 0 || (selisihBulan === 0 && hariIni.getDate() < tglLahir.getDate())) {
+                    usia--;
+                }
+                usiaInput.value = usia;
+            } catch (e) {
+                usiaInput.value = '';
+            }
+        }
+        function hitungLamaKerja() {
+            if (!tglMulaiKerjaInput.value) { lamaKerjaInput.value = ''; return; }
+            try {
+                const tglMulai = new Date(tglMulaiKerjaInput.value);
+                const hariIni = new Date();
+                const selisihMs = hariIni.getTime() - tglMulai.getTime();
+                const selisihTahun = selisihMs / (1000 * 60 * 60 * 24 * 365.25);
+                lamaKerjaInput.value = Math.floor(selisihTahun);
+            } catch (e) {
+                lamaKerjaInput.value = '';
+            }
+        }
+        function hitungBiaya() {
+            const plafon = parseFloat(unformatRupiah(plafonUsulanInput.value)) || 0;
+            const provisiPersen = parseFloat(provisiPersenInput.value) || 0;
+            const provisiNominal = Math.round((plafon * provisiPersen) / 100);
+            provisiNominalInput.value = formatRupiah(String(provisiNominal));
+            const tataLaksanaPersen = parseFloat(tataLaksanaPersenInput.value) || 0;
+            const tataLaksanaNominal = Math.round((plafon * tataLaksanaPersen) / 100);
+            tataLaksanaNominalInput.value = formatRupiah(String(tataLaksanaNominal));
+        }
+        function syncPengajuanKeUsulan() {
+            if (plafonDimohonInput) {
+                plafonUsulanInput.value = plafonDimohonInput.value;
+            }
+            if (jangkaWaktuDimohonInput) {
+                jangkaWaktuUsulanInput.value = jangkaWaktuDimohonInput.value;
+            }
+            hitungBiaya();
+        }
+        const angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+        function terbilang(n) {
+            n = Math.floor(n);
+            if (n < 12) return angka[n];
+            if (n < 20) return angka[n - 10] + ' belas';
+            if (n < 100) return angka[Math.floor(n / 10)] + ' puluh ' + angka[n % 10];
+            if (n < 200) return 'seratus ' + terbilang(n - 100);
+            if (n < 1000) return angka[Math.floor(n / 100)] + ' ratus ' + terbilang(n % 100);
+            if (n < 2000) return 'seribu ' + terbilang(n - 1000);
+            if (n < 1000000) return terbilang(Math.floor(n / 1000)) + ' ribu ' + terbilang(n % 1000);
+            if (n < 1000000000) return terbilang(Math.floor(n / 1000000)) + ' juta ' + terbilang(n % 1000000);
+            return ''; 
+        }
+        function updateTerbilang(inputElement, outputElement) {
+            const nilai = parseFloat(inputElement.value) || 0;
+            if (nilai === 0) {
+                outputElement.value = ''; 
+                return;
+            }
+            let hasil = terbilang(nilai).trim().replace(/\s+/g, ' '); 
+            hasil = hasil.charAt(0).toUpperCase() + hasil.slice(1);
+            outputElement.value = hasil;
+        }
+
+        // --- 3. EVENT LISTENERS ---
+
+        if (tglLahirInput) tglLahirInput.addEventListener('change', hitungUsia);
+        if (tglMulaiKerjaInput) tglMulaiKerjaInput.addEventListener('change', hitungLamaKerja);
+        if (provisiPersenInput) provisiPersenInput.addEventListener('input', hitungBiaya);
+        if (tataLaksanaPersenInput) tataLaksanaPersenInput.addEventListener('input', hitungBiaya);
+        if (plafonDimohonInput) plafonDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
+        if (jangkaWaktuDimohonInput) jangkaWaktuDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
+
+        pairsTerbilang.forEach(pair => {
+            if (pair.input) {
+                pair.input.addEventListener('input', function() {
+                    updateTerbilang(pair.input, pair.output);
+                });
+            }
+        });
+        
+        // (PERBAIKAN) Event Listener untuk Tombol SLIK
+        if (addSlikButton) {
+            addSlikButton.addEventListener('click', function() {
+                const nextFacility = document.getElementById('slik-facility-' + slikFacilityCounter);
+                if (nextFacility) {
+                    nextFacility.style.display = 'block';
+                    slikFacilityCounter++;
+                }
+                
+                // Sembunyikan tombol jika sudah mencapai batas
+                if (slikFacilityCounter > maxFacilities) {
+                    addSlikButton.style.display = 'none';
+                }
+            });
+        }
+        
+        // Event Listener untuk Checkbox Mitigasi
+        if (toggleMitigasi) {
+            toggleMitigasi.addEventListener('change', function() {
+                if (toggleMitigasi.checked) {
+                    mitigasiFields.style.display = 'block';
+                    mitigasiInputs.forEach(input => input.disabled = false);
+                } else {
+                    mitigasiFields.style.display = 'none';
+                    mitigasiInputs.forEach(input => input.disabled = true);
+                }
+            });
+        }
+
+        // --- 4. KALKULASI & FORMAT SAAT HALAMAN DIMUAT ---
+        
+        // Terapkan format Rupiah ke semua field nominal
+        nominalInputIDs.forEach(setupRupiahInput);
+
+        // Jalankan kalkulasi dasar
+        hitungUsia();
+        hitungLamaKerja(); 
+        syncPengajuanKeUsulan();
+        
+        // Jalankan kalkulasi terbilang
+        pairsTerbilang.forEach(pair => {
+            if (pair.input && pair.input.value) {
+                updateTerbilang(pair.input, pair.output);
+            }
+        });
+
+        // Logika saat muat (Mode Edit)
+        if (document.getElementById('mitigasi_slik_no_surat').value) {
+            toggleMitigasi.checked = true;
+            mitigasiFields.style.display = 'block';
+            mitigasiInputs.forEach(input => input.disabled = false);
+        } else {
+            mitigasiInputs.forEach(input => input.disabled = true);
+        }
+
+        // (PERBAIKAN) Cek fasilitas mana yang sudah ada & update counter
+        for (let i = maxFacilities; i >= 2; i--) {
+            const namaInput = document.getElementById('slik_bank_' + i + '_nama');
+            if (namaInput && namaInput.value) {
+                // Ini adalah fasilitas terisi terakhir,
+                // counter harus diatur ke slot KOSONG berikutnya
+                slikFacilityCounter = i + 1;
+                break; // Hentikan loop setelah menemukan yang terakhir
+            }
+        }
+        // Sembunyikan tombol jika counter sudah mentok
+        if (slikFacilityCounter > maxFacilities) {
+            addSlikButton.style.display = 'none';
+        }
+
+    });
+</script>
+
+</body>
+</html>
