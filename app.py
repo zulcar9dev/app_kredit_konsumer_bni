@@ -30,13 +30,13 @@ DATE_KEYS = [
     'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
 ]
 
-# (PERUBAHAN: Diperpanjang sampai 15)
+# (PERBAIKAN TOTAL) Daftar NOMINAL_KEYS sekarang sinkron dengan index.html
 NOMINAL_KEYS = [
     'plafon_kredit_dimohon', 'usulan_plafon_kredit',
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
     'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
     'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
-    'info_gaji_bendahara', 
+    'info_gaji_bendahara', # Ditambahkan
     'slik_bank_1_maks', 'slik_bank_1_outs',
     'slik_bank_2_maks', 'slik_bank_2_outs', 
     'slik_bank_3_maks', 'slik_bank_3_outs',
@@ -47,11 +47,11 @@ NOMINAL_KEYS = [
     'slik_bank_8_maks', 'slik_bank_8_outs', 
     'slik_bank_9_maks', 'slik_bank_9_outs',
     'slik_bank_10_maks', 'slik_bank_10_outs',
-    'slik_bank_11_maks', 'slik_bank_11_outs', # BARU
-    'slik_bank_12_maks', 'slik_bank_12_outs', # BARU
-    'slik_bank_13_maks', 'slik_bank_13_outs', # BARU
-    'slik_bank_14_maks', 'slik_bank_14_outs', # BARU
-    'slik_bank_15_maks', 'slik_bank_15_outs', # BARU
+    'slik_bank_11_maks', 'slik_bank_11_outs', # Ditambahkan
+    'slik_bank_12_maks', 'slik_bank_12_outs', # Ditambahkan
+    'slik_bank_13_maks', 'slik_bank_13_outs', # Ditambahkan
+    'slik_bank_14_maks', 'slik_bank_14_outs', # Ditambahkan
+    'slik_bank_15_maks', 'slik_bank_15_outs', # Ditambahkan
 ]
 
 # --- MODEL DATABASE ---
@@ -97,7 +97,7 @@ def simpan():
     debitur_id = form_data.pop('debitur_id', None)
 
     try:
-        # Bersihkan nominal
+        # Bersihkan nominal (Sekarang menggunakan daftar NOMINAL_KEYS yang sudah benar)
         for key in NOMINAL_KEYS:
             if key in form_data:
                 form_data[key] = form_data[key].replace('.', '')
@@ -145,7 +145,7 @@ def generate_docx(id):
                 context[key] = date_obj.strftime('%d %B %Y')
             except ValueError: pass
     
-    # Format Nominal (Rupiah)
+    # Format Nominal (Sekarang menggunakan daftar NOMINAL_KEYS yang sudah benar)
     for key in NOMINAL_KEYS:
         if key in context and context[key]:
             try:
