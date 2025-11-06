@@ -215,7 +215,7 @@
                             <input type="date" class="form-control" id="tgl_slik" name="tgl_slik" value="{{ data.get('tgl_slik', '') }}">
                         </div>
                         
-                        <div class="mb-3 p-3 bg-light border rounded">
+                        <div class="mb-3 p-3 bg-light-subtle border rounded">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="toggle-fasilitas-nihil" name="fasilitas_nihil" value="ya" {% if data.get('fasilitas_nihil') == 'ya' %}checked{% endif %}>
                                 <label class="form-check-label fw-bold" for="toggle-fasilitas-nihil">
@@ -250,6 +250,12 @@
                                     <input type="text" class="form-control" id="slik_bank_1_coll" name="slik_bank_1_coll" value="{{ data.get('slik_bank_1_coll', '') }}">
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="slik_bank_1_angsuran" class="form-label">Angsuran Eksisting (Rp)</label>
+                                    <input type="text" class="form-control" id="slik_bank_1_angsuran" name="slik_bank_1_angsuran" value="{{ data.get('slik_bank_1_angsuran', '') }}" data-type="rupiah">
+                                </div>
+                            </div>
                             <div class="form-check mt-1">
                                 <input class="form-check-input toggle-alasan" type="checkbox" id="slik_bank_1_alasan_aktif" name="slik_bank_1_alasan_aktif" value="ya" data-target-alasan="#slik_bank_1_alasan" {% if data.get('slik_bank_1_alasan_aktif') == 'ya' %}checked{% endif %}>
                                 <label class="form-check-label" for="slik_bank_1_alasan_aktif">
@@ -268,6 +274,7 @@
                                     {% set maks_key = 'slik_bank_' ~ i ~ '_maks' %}
                                     {% set outs_key = 'slik_bank_' ~ i ~ '_outs' %}
                                     {% set coll_key = 'slik_bank_' ~ i ~ '_coll' %}
+                                    {% set angsuran_key = 'slik_bank_' ~ i ~ '_angsuran' %}
                                     {% set alasan_aktif_key = 'slik_bank_' ~ i ~ '_alasan_aktif' %}
                                     {% set alasan_key = 'slik_bank_' ~ i ~ '_alasan' %}
                                     
@@ -300,6 +307,12 @@
                                             <div class="col-md-4 mb-3">
                                                 <label for="{{ coll_key }}" class="form-label">Kolektibilitas</label>
                                                 <input type="text" class="form-control" id="{{ coll_key }}" name="{{ coll_key }}" value="{{ data.get(coll_key, '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-8 mb-3">
+                                                <label for="{{ angsuran_key }}" class="form-label">Angsuran Eksisting (Rp)</label>
+                                                <input type="text" class="form-control" id="{{ angsuran_key }}" name="{{ angsuran_key }}" value="{{ data.get(angsuran_key, '') }}" data-type="rupiah">
                                             </div>
                                         </div>
                                         <div class="form-check mt-1">
@@ -472,6 +485,13 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="usulan_angsuran" class="form-label">Angsuran Kredit yang Diusulkan (Rp)</label>
+                                <input type="text" class="form-control" id="usulan_angsuran" name="usulan_angsuran" value="{{ data.get('usulan_angsuran', '') }}" readonly data-type="rupiah">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="biaya_provisi_persen" class="form-label">Biaya Provisi (%)</label>
                                 <input type="number" step="0.01" class="form-control" id="biaya_provisi_persen" name="biaya_provisi_persen" value="{{ data.get('biaya_provisi_persen', '') }}" min="0">
@@ -614,7 +634,8 @@
                             Bank: <span id="preview_slik_bank_1_nama"></span>,
                             Plafon: <span id="preview_slik_bank_1_maks"></span>,
                             O/S: <span id="preview_slik_bank_1_outs"></span>,
-                            Kol: <span id="preview_slik_bank_1_coll"></span>
+                            Kol: <span id="preview_slik_bank_1_coll"></span><br>
+                            <strong>Angsuran: <span id="preview_slik_bank_1_angsuran"></span></strong>
                             <div class="alasan-wrapper" id="preview-alasan-wrapper-1">
                                 <strong>Alasan:</strong> <span id="preview_slik_bank_1_alasan"></span>
                             </div>
@@ -630,7 +651,8 @@
                                 Bank: <span id="preview_slik_bank_{{ i }}_nama"></span>,
                                 Plafon: <span id="preview_slik_bank_{{ i }}_maks"></span>,
                                 O/S: <span id="preview_slik_bank_{{ i }}_outs"></span>,
-                                Kol: <span id="preview_slik_bank_{{ i }}_coll"></span>
+                                Kol: <span id="preview_slik_bank_{{ i }}_coll"></span><br>
+                                <strong>Angsuran: <span id="preview_slik_bank_{{ i }}_angsuran"></span></strong>
                                 <div class="alasan-wrapper" id="preview-alasan-wrapper-{{ i }}">
                                     <strong>Alasan:</strong> <span id="preview_slik_bank_{{ i }}_alasan"></span>
                                 </div>
@@ -681,6 +703,7 @@
                 <div class="row"><div class="col-md-4">Usulan Plafon (Rp):</div><div class="col-md-8"><span id="preview_usulan_plafon_kredit"></span></div></div>
                 <div class="row"><div class="col-md-4">Usulan J.Waktu (Bulan):</div><div class="col-md-8"><span id="preview_usulan_jangka_waktu_bulan"></span></div></div>
                 <div class="row"><div class="col-md-4">Usulan Bunga (%):</div><div class="col-md-8"><span id="preview_usulan_bunga_persen"></span></div></div>
+                <div class="row"><div class="col-md-4">Angsuran Diusulkan (Rp):</div><div class="col-md-8"><span id="preview_usulan_angsuran"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Provisi (%):</div><div class="col-md-8"><span id="preview_biaya_provisi_persen"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Provisi (Rp):</div><div class="col-md-8"><span id="preview_biaya_provisi_nominal"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Tata Laksana (%):</div><div class="col-md-8"><span id="preview_biaya_tata_laksana_persen"></span></div></div>
@@ -740,6 +763,8 @@
         const jangkaWaktuDimohonInput = document.getElementById('jangka_waktu_dimohon_bulan');
         const plafonUsulanInput = document.getElementById('usulan_plafon_kredit');
         const jangkaWaktuUsulanInput = document.getElementById('usulan_jangka_waktu_bulan');
+        const bungaUsulanInput = document.getElementById('usulan_bunga_persen'); // (BARU)
+        const angsuranUsulanInput = document.getElementById('usulan_angsuran'); // (BARU)
         const provisiPersenInput = document.getElementById('biaya_provisi_persen');
         const provisiNominalInput = document.getElementById('biaya_provisi_nominal');
         const tataLaksanaPersenInput = document.getElementById('biaya_tata_laksana_persen');
@@ -752,21 +777,28 @@
             { input: document.getElementById('blokir_angsuran_lunas'), output: document.getElementById('blokir_angsuran_lunas_terbilang') }
         ];
 
+        // (PERBAIKAN) Menambahkan semua field angsuran baru
         const nominalInputIDs = [
-            'plafon_kredit_dimohon', 'usulan_plafon_kredit',
+            'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran',
             'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
             'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
             'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
             'info_gaji_bendahara', 
-            'slik_bank_1_maks', 'slik_bank_1_outs',
-            'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_3_maks', 'slik_bank_3_outs',
-            'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_5_maks', 'slik_bank_5_outs',
-            'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_7_maks', 'slik_bank_7_outs',
-            'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_9_maks', 'slik_bank_9_outs',
-            'slik_bank_10_maks', 'slik_bank_10_outs',
-            'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_12_maks', 'slik_bank_12_outs',
-            'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_14_maks', 'slik_bank_14_outs',
-            'slik_bank_15_maks', 'slik_bank_15_outs',
+            'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran',
+            'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran',
+            'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran',
+            'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran',
+            'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran',
+            'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran',
+            'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran',
+            'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran',
+            'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran',
+            'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran',
+            'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran',
+            'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran',
+            'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran',
+            'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran',
+            'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran',
         ];
 
         // Referensi SLIK Dinamis
@@ -776,7 +808,7 @@
         // Referensi Mitigasi Checkbox
         const toggleMitigasi = document.getElementById('toggle-mitigasi');
         const mitigasiFields = document.getElementById('mitigasi-fields');
-        const mitigasiInputs = mitigasiFields.querySelectorAll('input');
+        const mitigasiInputs = mitigasiFields.querySelectorAll('input, textarea');
         
         // Referensi Checkbox Nihil
         const toggleNihil = document.getElementById('toggle-fasilitas-nihil');
@@ -787,7 +819,7 @@
         const confirmSaveButton = document.getElementById('confirm-save');
 
         // --- 2. FUNGSI KALKULASI ---
-        function hitungUsia() { /* ... (tidak berubah) ... */ 
+        function hitungUsia() {
             if (!tglLahirInput.value) { usiaInput.value = ''; return; }
             try {
                 const tglLahir = new Date(tglLahirInput.value);
@@ -802,7 +834,7 @@
                 usiaInput.value = '';
             }
         }
-        function hitungLamaKerja() { /* ... (tidak berubah) ... */
+        function hitungLamaKerja() {
             if (!tglMulaiKerjaInput.value) { lamaKerjaInput.value = ''; return; }
             try {
                 const tglMulai = new Date(tglMulaiKerjaInput.value);
@@ -814,7 +846,7 @@
                 lamaKerjaInput.value = '';
             }
         }
-        function hitungBiaya() { /* ... (tidak berubah) ... */
+        function hitungBiaya() {
             const plafon = parseFloat(unformatRupiah(plafonUsulanInput.value)) || 0;
             const provisiPersen = parseFloat(provisiPersenInput.value) || 0;
             const provisiNominal = Math.round((plafon * provisiPersen) / 100);
@@ -823,13 +855,15 @@
             const tataLaksanaNominal = Math.round((plafon * tataLaksanaPersen) / 100);
             tataLaksanaNominalInput.value = formatRupiah(String(tataLaksanaNominal));
         }
-        function syncPengajuanKeUsulan() { /* ... (tidak berubah) ... */
+        function syncPengajuanKeUsulan() {
             if (plafonDimohonInput) { plafonUsulanInput.value = plafonDimohonInput.value; }
             if (jangkaWaktuDimohonInput) { jangkaWaktuUsulanInput.value = jangkaWaktuDimohonInput.value; }
+            // Picu kalkulasi angsuran baru
+            calculateNewPMT();
             hitungBiaya();
         }
         const angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
-        function terbilang(n) { /* ... (tidak berubah) ... */
+        function terbilang(n) {
             n = Math.floor(n);
             if (n < 12) return angka[n];
             if (n < 20) return angka[n - 10] + ' belas';
@@ -841,7 +875,7 @@
             if (n < 1000000000) return terbilang(Math.floor(n / 1000000)) + ' juta ' + terbilang(n % 1000000);
             return ''; 
         }
-        function updateTerbilang(inputElement, outputElement) { /* ... (tidak berubah) ... */
+        function updateTerbilang(inputElement, outputElement) {
             const nilai = parseFloat(inputElement.value) || 0;
             if (nilai === 0) {
                 outputElement.value = ''; return;
@@ -851,7 +885,31 @@
             outputElement.value = hasil;
         }
 
-        // --- (Fungsi Toggle yang Dibuat Ulang - tidak berubah dari sebelumnya) ---
+        // (BARU) Fungsi kalkulasi angsuran (PMT) di JS
+        function calculateNewPMT() {
+            const P = parseFloat(unformatRupiah(plafonUsulanInput.value)) || 0;
+            const annualRate = parseFloat(bungaUsulanInput.value) || 0;
+            const N = parseInt(jangkaWaktuUsulanInput.value) || 0;
+
+            if (P === 0 || N === 0) {
+                angsuranUsulanInput.value = '';
+                return;
+            }
+
+            if (annualRate === 0) {
+                const pmt = Math.ceil(P / N);
+                angsuranUsulanInput.value = formatRupiah(String(pmt));
+                return;
+            }
+
+            const R = (annualRate / 100) / 12; // monthly rate
+            const pmt = (P * (R * Math.pow(1 + R, N))) / (Math.pow(1 + R, N) - 1);
+            const pmtRounded = Math.ceil(pmt);
+            
+            angsuranUsulanInput.value = formatRupiah(String(pmtRounded));
+        }
+
+        // --- (Fungsi Toggle) ---
         function handleNihilToggle() {
             if (toggleNihil.checked) {
                 allFacilitiesWrapper.style.display = 'none';
@@ -859,13 +917,14 @@
                 addSlikButton.disabled = true;
             } else {
                 allFacilitiesWrapper.style.display = 'block';
+                // Aktifkan kembali input NON-TEXTAREA
                 allFacilitiesWrapper.querySelectorAll('input').forEach(input => {
                     if (!input.classList.contains('toggle-alasan')) {
                         input.disabled = false;
                     }
                 });
                 addSlikButton.disabled = false;
-                initAlasanCheckboxes(); 
+                initAlasanCheckboxes(); // Panggil ulang untuk mengaktifkan/menonaktifkan textarea
             }
         }
         function handleMitigasiToggle() {
@@ -881,6 +940,7 @@
             const targetAlasan = document.querySelector(checkbox.dataset.targetAlasan);
             if (!targetAlasan) return;
             const wrapper = targetAlasan.closest('.alasan-wrapper');
+
             if (checkbox.checked) {
                 wrapper.style.display = 'block';
                 targetAlasan.disabled = false;
@@ -956,6 +1016,10 @@
         if (tataLaksanaPersenInput) tataLaksanaPersenInput.addEventListener('input', hitungBiaya);
         if (plafonDimohonInput) plafonDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
         if (jangkaWaktuDimohonInput) jangkaWaktuDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
+        
+        // (BARU) Listener untuk kalkulasi angsuran baru
+        if (bungaUsulanInput) bungaUsulanInput.addEventListener('input', calculateNewPMT);
+        
         pairsTerbilang.forEach(pair => {
             if (pair.input) {
                 pair.input.addEventListener('input', function() {
@@ -963,6 +1027,7 @@
                 });
             }
         });
+        
         if (addSlikButton) {
             addSlikButton.addEventListener('click', function() {
                 let found = false;
@@ -987,6 +1052,7 @@
                 }
             });
         }
+        
         document.getElementById('all-facilities-wrapper').addEventListener('click', function(e) {
             if (e.target.classList.contains('slik-delete-btn')) {
                 const facilityId = e.target.getAttribute('data-facility-id');
@@ -1008,6 +1074,7 @@
                 }
             }
         });
+
         if (toggleNihil) {
             toggleNihil.addEventListener('change', handleNihilToggle);
         }
@@ -1039,7 +1106,6 @@
 
         // --- 4. KALKULASI & FORMAT SAAT HALAMAN DIMUAT ---
         
-        // (PERBAIKAN) Bungkus logika "saat muat" dalam timeout 10ms
         setTimeout(function() {
             
             // 1. Format Rupiah
@@ -1048,7 +1114,7 @@
             // 2. Kalkulasi Angka
             hitungUsia();
             hitungLamaKerja(); 
-            syncPengajuanKeUsulan();
+            syncPengajuanKeUsulan(); // Ini juga memicu calculateNewPMT()
             
             // 3. Kalkulasi Terbilang
             pairsTerbilang.forEach(pair => {
@@ -1057,18 +1123,15 @@
                 }
             });
             
-            // 4. (PERBAIKAN LINTER & AUTOFILL) Logika Checkbox
-            // Baca data dari Jinja2 sebagai STRING, bukan boolean
+            // 4. Logika Checkbox (Anti-Autofill)
             const isNihilString = "{{ data.get('fasilitas_nihil', 'no') }}";
             const isMitigasiString = "{{ data.get('mitigasi_aktif', 'no') }}";
             const isNihil = (isNihilString === 'ya');
             const isMitigasi = (isMitigasiString === 'ya');
 
-            // Paksa status checkbox berdasarkan data dari database
             toggleNihil.checked = isNihil;
             toggleMitigasi.checked = isMitigasi;
             
-            // Jalankan handler untuk mengatur UI
             handleNihilToggle();
             handleMitigasiToggle();
             initAlasanCheckboxes();
@@ -1076,7 +1139,6 @@
             // 5. Cek Tombol "Tambah"
             let allVisibleOnLoad = true;
             for (let i = 2; i <= maxFacilities; i++) {
-                // (PERBAIKAN TYPO) Mengganti * dengan +
                 const facility = document.getElementById('slik-facility-' + i); 
                 if (!facility || window.getComputedStyle(facility).display === 'none') {
                     allVisibleOnLoad = false;
@@ -1087,12 +1149,13 @@
                 addSlikButton.style.display = 'none';
             }
             
-        // --- (BARU) EVENT LISTENER GANTI TEMA ---
+        }, 10); // Delay 10 milidetik
+        
+        // --- EVENT LISTENER GANTI TEMA ---
         (function() {
             const themeToggler = document.getElementById('theme-toggler');
             if (!themeToggler) return;
     
-            // Fungsi untuk menerapkan tema
             function applyTheme(theme) {
                 if (theme === 'dark') {
                     document.documentElement.setAttribute('data-bs-theme', 'dark');
@@ -1103,16 +1166,11 @@
                 }
             }
     
-            // Listener untuk tombol
             themeToggler.addEventListener('click', () => {
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
         })();
-
-        // --- (AKHIR BARU) ---
-
-        }, 10); // Delay 10 milidetik
 
     });
 </script>

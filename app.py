@@ -8,9 +8,9 @@ from docxtpl import DocxTemplate
 from io import BytesIO
 import locale
 from werkzeug.utils import secure_filename
-# (BARU) Impor modul untuk buka browser
 import webbrowser
 from threading import Timer
+import math # (BARU) Diperlukan untuk kalkulasi angsuran
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'rahasia-dapur-bni-1946'
@@ -33,28 +33,48 @@ DATE_KEYS = [
     'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
 ]
 
+# (PERBAIKAN) Menambahkan key angsuran baru
 NOMINAL_KEYS = [
-    'plafon_kredit_dimohon', 'usulan_plafon_kredit',
+    'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', # 'usulan_angsuran' BARU
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
     'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
     'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
     'info_gaji_bendahara', 
-    'slik_bank_1_maks', 'slik_bank_1_outs',
-    'slik_bank_2_maks', 'slik_bank_2_outs', 
-    'slik_bank_3_maks', 'slik_bank_3_outs',
-    'slik_bank_4_maks', 'slik_bank_4_outs', 
-    'slik_bank_5_maks', 'slik_bank_5_outs',
-    'slik_bank_6_maks', 'slik_bank_6_outs', 
-    'slik_bank_7_maks', 'slik_bank_7_outs',
-    'slik_bank_8_maks', 'slik_bank_8_outs', 
-    'slik_bank_9_maks', 'slik_bank_9_outs',
-    'slik_bank_10_maks', 'slik_bank_10_outs',
-    'slik_bank_11_maks', 'slik_bank_11_outs', 
-    'slik_bank_12_maks', 'slik_bank_12_outs', 
-    'slik_bank_13_maks', 'slik_bank_13_outs', 
-    'slik_bank_14_maks', 'slik_bank_14_outs', 
-    'slik_bank_15_maks', 'slik_bank_15_outs', 
+    'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', # BARU
+    'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', # BARU
+    'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', # BARU
+    'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran', # BARU
+    'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran', # BARU
+    'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran', # BARU
+    'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran', # BARU
+    'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran', # BARU
+    'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran', # BARU
+    'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran', # BARU
+    'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran', # BARU
+    'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran', # BARU
+    'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran', # BARU
+    'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran', # BARU
+    'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', # BARU
 ]
+
+# (BARU) Fungsi kalkulasi angsuran (PMT)
+def calculate_pmt(principal, annual_rate_percent, months):
+    try:
+        principal = float(principal)
+        annual_rate_percent = float(annual_rate_percent)
+        months = int(months)
+        
+        if annual_rate_percent == 0:
+            return principal / months if months > 0 else 0
+        
+        monthly_rate = (annual_rate_percent / 100) / 12
+        if months == 0:
+            return 0
+        
+        pmt = principal * (monthly_rate * (1 + monthly_rate) ** months) / ((1 + monthly_rate) ** months - 1)
+        return math.ceil(pmt) # Pembulatan ke atas
+    except (ValueError, TypeError, ZeroDivisionError):
+        return 0
 
 # --- MODEL DATABASE ---
 class Debitur(db.Model):
@@ -105,13 +125,11 @@ def simpan():
                 form_data[key] = form_data[key].replace('.', '')
 
         if debitur_id and debitur_id.isdigit():
-            # --- MODE UPDATE ---
             debitur = Debitur.query.get_or_404(int(debitur_id))
             debitur.nama_pemohon = form_data.get('nama_pemohon', 'Tanpa Nama')
             debitur.no_ktp = form_data.get('no_ktp_pemohon', '000')
             debitur.data_lengkap = json.dumps(form_data)
         else:
-            # --- MODE CREATE ---
             new_debitur = Debitur(
                 nama_pemohon=form_data.get('nama_pemohon', 'Tanpa Nama'),
                 no_ktp=form_data.get('no_ktp_pemohon', '000'),
@@ -130,7 +148,7 @@ def generate_docx(id):
     debitur = Debitur.query.get_or_404(id)
     context = json.loads(debitur.data_lengkap)
     
-    # Atur Locale (HANYA UNTUK TANGGAL)
+    # Atur Locale
     try:
         locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
     except locale.Error:
@@ -139,6 +157,51 @@ def generate_docx(id):
         except locale.Error:
             locale.setlocale(locale.LC_ALL, '') 
             
+    # --- (BARU) BLOK KALKULASI RPC & DSR ---
+    try:
+        # 1. Hitung Angsuran Baru (Usulan)
+        plafon = context.get('usulan_plafon_kredit', '0').replace('.', '')
+        tenor = context.get('usulan_jangka_waktu_bulan', '0')
+        bunga = context.get('usulan_bunga_persen', '0')
+        
+        # Kalkulasi PMT (Payment)
+        usulan_angsuran = calculate_pmt(plafon, bunga, tenor)
+        context['usulan_angsuran'] = usulan_angsuran # Simpan untuk docx
+
+        # 2. Hitung Total Angsuran Eksisting
+        total_angsuran_eksisting = 0
+        if context.get('fasilitas_nihil') != 'ya':
+            for i in range(1, 16):
+                key = f'slik_bank_{i}_angsuran'
+                angsuran_str = context.get(key, '0').replace('.', '')
+                total_angsuran_eksisting += int(angsuran_str) if angsuran_str.isdigit() else 0
+        
+        # 3. Hitung RPC
+        penghasilan_str = context.get('estimasi_hak_pensiun', '0').replace('.', '')
+        penghasilan = int(penghasilan_str) if penghasilan_str.isdigit() else 0
+        
+        dsc_90_nominal = penghasilan * 0.9
+        maksimal_angsuran = dsc_90_nominal - total_angsuran_eksisting
+        total_angsuran_baru = total_angsuran_eksisting + usulan_angsuran
+        
+        dsr = 0
+        if penghasilan > 0:
+            dsr = (total_angsuran_baru / penghasilan) * 100
+        
+        # 4. Masukkan hasil kalkulasi ke context
+        context['rpc_penghasilan'] = penghasilan
+        context['rpc_dsc_90'] = dsc_90_nominal
+        context['rpc_total_angsuran_eksisting'] = total_angsuran_eksisting
+        context['rpc_maksimal_angsuran'] = maksimal_angsuran
+        context['rpc_total_angsuran_baru'] = total_angsuran_baru
+        context['rpc_dsr'] = f"{dsr:.2f}" # Format 2 desimal
+
+    except Exception as e:
+        # Gagal kalkulasi, set nilai default agar tidak crash
+        context['rpc_dsr'] = "Error"
+        print(f"Error saat kalkulasi RPC: {e}")
+    # --- AKHIR BLOK KALKULASI ---
+
     # Format Tanggal
     for key in DATE_KEYS:
         if key in context and context[key]:
@@ -148,10 +211,23 @@ def generate_docx(id):
             except ValueError: pass
     
     # Format Nominal (Rupiah)
-    for key in NOMINAL_KEYS:
+    # Tambahkan key RPC ke daftar format
+    rpc_keys_to_format = [
+        'rpc_penghasilan', 'rpc_dsc_90', 'rpc_total_angsuran_eksisting',
+        'rpc_maksimal_angsuran', 'rpc_total_angsuran_baru'
+        # 'usulan_angsuran' sudah ada di NOMINAL_KEYS
+    ]
+    
+    for key in NOMINAL_KEYS + rpc_keys_to_format:
         if key in context and context[key]:
             try:
-                nilai_angka = int(context[key])
+                # Cek jika sudah diformat (seperti '87.73')
+                if isinstance(context[key], str) and '.' in context[key]:
+                     nilai_angka = int(float(context[key])) # handle 87.73 -> 87
+                else:
+                     nilai_angka = int(context[key])
+                
+                # Format ke '1.000.000'
                 context[key] = f"{nilai_angka:,}".replace(',', '.')
             except (ValueError, TypeError):
                 pass
@@ -187,12 +263,10 @@ def hapus(id):
 
 @app.route('/admin')
 def admin():
-    """Menampilkan halaman upload template."""
     return render_template('admin.html')
 
 @app.route('/upload_template', methods=['POST'])
 def upload_template():
-    """Memproses file template yang di-upload."""
     if 'file' not in request.files:
         flash('Tidak ada file yang dipilih.', 'danger')
         return redirect(url_for('admin'))
@@ -221,14 +295,12 @@ def upload_template():
 with app.app_context():
     db.create_all()
 
-# --- (PERUBAHAN) FUNGSI UNTUK BUKA BROWSER ---
+# --- FUNGSI UNTUK BUKA BROWSER ---
 def open_browser():
       webbrowser.open_new('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
-    # Cek apakah ini dijalankan oleh reloader atau bukan
     if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-        # Jika bukan reloader, jadwalkan pembukaan browser
         Timer(1, open_browser).start()
     
     app.run(debug=True)
