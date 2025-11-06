@@ -9,7 +9,6 @@
         .tab-content { padding-top: 20px; }
         .slik-facility-hidden { display: none; }
         .mitigasi-hidden { display: none; }
-        /* (BARU) Sembunyikan field alasan by default */
         .alasan-wrapper { display: none; }
         
         /* Style untuk Preview Modal */
@@ -18,15 +17,26 @@
             overflow-y: auto;
         }
         #previewModal .row {
-            border-bottom: 1px solid #eee;
+            /* (PERBAIKAN) Gunakan variabel CSS Bootstrap agar otomatis */
+            border-bottom: 1px solid var(--bs-border-color-translucent);
             padding-bottom: 8px;
             margin-bottom: 8px;
         }
         #previewModal .row .col-md-4 {
             font-weight: bold;
-            color: #333;
+            /* (DIHAPUS) Hapus 'color' agar Bootstrap menanganinya */
         }
+        /* (DIHAPUS) Hapus blok .col-md-8 agar Bootstrap menanganinya */
     </style>
+
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme) {
+          document.documentElement.setAttribute('data-bs-theme', theme);
+        }
+      })();
+    </script>
 </head>
 <body>
 
@@ -530,11 +540,18 @@
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        Simpan Data Debitur
-                    </button>
-                    <a href="/riwayat" class="btn btn-secondary btn-lg">Kembali ke Riwayat</a>
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Simpan Data Debitur
+                        </button>
+                        <a href="/riwayat" class="btn btn-secondary btn-lg">Kembali ke Riwayat</a>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary btn-lg" id="theme-toggler">
+                            🌗 Ganti Tema
+                        </button>
+                    </div>
                 </div>
 
             </form>
@@ -1070,6 +1087,31 @@
                 addSlikButton.style.display = 'none';
             }
             
+        // --- (BARU) EVENT LISTENER GANTI TEMA ---
+        (function() {
+            const themeToggler = document.getElementById('theme-toggler');
+            if (!themeToggler) return;
+    
+            // Fungsi untuk menerapkan tema
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+    
+            // Listener untuk tombol
+            themeToggler.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+                applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+        })();
+
+        // --- (AKHIR BARU) ---
+
         }, 10); // Delay 10 milidetik
 
     });

@@ -8,6 +8,9 @@ from docxtpl import DocxTemplate
 from io import BytesIO
 import locale
 from werkzeug.utils import secure_filename
+# (BARU) Impor modul untuk buka browser
+import webbrowser
+from threading import Timer
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'rahasia-dapur-bni-1946'
@@ -30,7 +33,6 @@ DATE_KEYS = [
     'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
 ]
 
-# (PERUBAHAN: Diperpanjang sampai 15)
 NOMINAL_KEYS = [
     'plafon_kredit_dimohon', 'usulan_plafon_kredit',
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
@@ -47,11 +49,11 @@ NOMINAL_KEYS = [
     'slik_bank_8_maks', 'slik_bank_8_outs', 
     'slik_bank_9_maks', 'slik_bank_9_outs',
     'slik_bank_10_maks', 'slik_bank_10_outs',
-    'slik_bank_11_maks', 'slik_bank_11_outs', # BARU
-    'slik_bank_12_maks', 'slik_bank_12_outs', # BARU
-    'slik_bank_13_maks', 'slik_bank_13_outs', # BARU
-    'slik_bank_14_maks', 'slik_bank_14_outs', # BARU
-    'slik_bank_15_maks', 'slik_bank_15_outs', # BARU
+    'slik_bank_11_maks', 'slik_bank_11_outs', 
+    'slik_bank_12_maks', 'slik_bank_12_outs', 
+    'slik_bank_13_maks', 'slik_bank_13_outs', 
+    'slik_bank_14_maks', 'slik_bank_14_outs', 
+    'slik_bank_15_maks', 'slik_bank_15_outs', 
 ]
 
 # --- MODEL DATABASE ---
@@ -219,5 +221,14 @@ def upload_template():
 with app.app_context():
     db.create_all()
 
+# --- (PERUBAHAN) FUNGSI UNTUK BUKA BROWSER ---
+def open_browser():
+      webbrowser.open_new('http://127.0.0.1:5000/')
+
 if __name__ == '__main__':
+    # Cek apakah ini dijalankan oleh reloader atau bukan
+    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+        # Jika bukan reloader, jadwalkan pembukaan browser
+        Timer(1, open_browser).start()
+    
     app.run(debug=True)
