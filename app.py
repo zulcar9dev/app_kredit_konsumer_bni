@@ -10,7 +10,7 @@ import locale
 from werkzeug.utils import secure_filename
 import webbrowser
 from threading import Timer
-import math # (BARU) Diperlukan untuk kalkulasi angsuran
+import math 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'rahasia-dapur-bni-1946'
@@ -19,12 +19,30 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-TEMPLATE_FILENAME = "template_kredit.docx"
+TEMPLATE_FILENAME_DEFAULT = "template_kredit.docx" # Default jika template spesifik tdk ada
 ALLOWED_EXTENSIONS = {'docx'}
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# (PERBAIKAN) Daftar Bulan Indonesia
+INDONESIAN_MONTHS = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+]
+
+# (PERBAIKAN) Fungsi helper format tanggal yang hilang
+def format_date_indonesian(date_str):
+    """Mengubah format YYYY-MM-DD menjadi DD NamaBulan YYYY"""
+    try:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        day = date_obj.strftime('%d')
+        month = INDONESIAN_MONTHS[date_obj.month - 1]
+        year = date_obj.strftime('%Y')
+        return f"{day} {month} {year}"
+    except (ValueError, TypeError):
+        return date_str # Kembalikan string asli jika format salah
 
 # Daftar Key untuk pemformatan
 DATE_KEYS = [
@@ -33,31 +51,54 @@ DATE_KEYS = [
     'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
 ]
 
-# (PERBAIKAN) Menambahkan key angsuran baru
 NOMINAL_KEYS = [
-    'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', # 'usulan_angsuran' BARU
+    'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', 
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
     'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
     'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
     'info_gaji_bendahara', 
-    'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', # BARU
-    'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', # BARU
-    'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', # BARU
-    'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran', # BARU
-    'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran', # BARU
-    'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran', # BARU
-    'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran', # BARU
-    'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran', # BARU
-    'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran', # BARU
-    'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran', # BARU
-    'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran', # BARU
-    'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran', # BARU
-    'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran', # BARU
-    'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran', # BARU
-    'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', # BARU
+    'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', 
+    'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', 
+    'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', 
+    'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran', 
+    'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran', 
+    'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran', 
+    'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran', 
+    'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran', 
+    'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran', 
+    'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran', 
+    'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran', 
+    'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran', 
+    'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran', 
+    'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran', 
+    'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', 
 ]
 
-# (BARU) Fungsi kalkulasi angsuran (PMT)
+# Daftar kategori produk
+PRODUCT_CATEGORIES = {
+    'prapurna_reguler': {
+        'nama': 'BNI Fleksi Pensiun Prapurna Reguler',
+        'template_form': 'form_prapurna_reguler.html',
+        'template_docx': 'template_prapurna_reguler.docx'
+    },
+    'prapurna_takeover': {
+        'nama': 'BNI Fleksi Pensiun Prapurna Take Over',
+        'template_form': 'form_prapurna_reguler.html', # SEMENTARA
+        'template_docx': 'template_prapurna_takeover.docx'
+    },
+    'purna_reguler': {
+        'nama': 'BNI Fleksi Pensiun Purna Reguler',
+        'template_form': 'form_prapurna_reguler.html', # SEMENTARA
+        'template_docx': 'template_purna_reguler.docx'
+    },
+    'purna_takeover': {
+        'nama': 'BNI Fleksi Pensiun Purna Take Over',
+        'template_form': 'form_prapurna_reguler.html', # SEMENTARA
+        'template_docx': 'template_purna_takeover.docx'
+    }
+}
+
+# Fungsi kalkulasi angsuran (PMT)
 def calculate_pmt(principal, annual_rate_percent, months):
     try:
         principal = float(principal)
@@ -83,12 +124,30 @@ class Debitur(db.Model):
     no_ktp = db.Column(db.String(20), nullable=False)
     tanggal_input = db.Column(db.DateTime, default=datetime.utcnow)
     data_lengkap = db.Column(db.Text, nullable=False)
+    kategori = db.Column(db.String(50), nullable=False, default='prapurna_reguler')
 
 # --- ROUTES ---
 
 @app.route('/')
 def index():
-    return render_template('index.html', data={})
+    """Menampilkan halaman pemilihan produk (menu utama)."""
+    return render_template('index.html', categories=PRODUCT_CATEGORIES)
+
+@app.route('/form/<string:kategori>')
+def new_form(kategori):
+    """Menampilkan form input baru berdasarkan kategori yang dipilih."""
+    if kategori not in PRODUCT_CATEGORIES:
+        flash('Kategori produk tidak valid.', 'danger')
+        return redirect(url_for('index'))
+        
+    product = PRODUCT_CATEGORIES[kategori]
+    
+    template_path = os.path.join(app.template_folder, product['template_form'])
+    if not os.path.exists(template_path):
+        flash(f"Formulir untuk '{product['nama']}' sedang dalam pengembangan.", 'info')
+        return redirect(url_for('index'))
+        
+    return render_template(product['template_form'], data={}, kategori=kategori)
 
 @app.route('/riwayat')
 def riwayat():
@@ -103,21 +162,42 @@ def riwayat():
             )
         )
     all_debitur = query.order_by(Debitur.tanggal_input.desc()).all()
+    
     return render_template('riwayat.html', 
                            debitur_list=all_debitur, 
-                           search_query=search_query)
+                           search_query=search_query,
+                           categories=PRODUCT_CATEGORIES) 
 
 @app.route('/edit/<int:id>')
 def edit(id):
     debitur = Debitur.query.get_or_404(id)
     data = json.loads(debitur.data_lengkap)
-    return render_template('index.html', data=data, debitur_id=debitur.id)
+    kategori = debitur.kategori
+    
+    if kategori not in PRODUCT_CATEGORIES:
+        flash('Kategori produk debitur ini tidak valid.', 'danger')
+        return redirect(url_for('riwayat'))
+    
+    product = PRODUCT_CATEGORIES[kategori]
+    template_name = product['template_form']
+    
+    template_path = os.path.join(app.template_folder, template_name)
+    if not os.path.exists(template_path):
+        flash(f"Formulir edit untuk '{product['nama']}' sedang dalam pengembangan.", 'info')
+        return redirect(url_for('riwayat'))
+
+    return render_template(template_name, data=data, debitur_id=debitur.id, kategori=kategori)
 
 @app.route('/simpan', methods=['POST'])
 def simpan():
     form_data = request.form.to_dict()
     debitur_id = form_data.pop('debitur_id', None)
+    kategori = form_data.pop('kategori', 'prapurna_reguler') 
 
+    if kategori not in PRODUCT_CATEGORIES:
+        flash('Kategori produk tidak valid saat menyimpan.', 'danger')
+        return redirect(url_for('index'))
+        
     try:
         # Bersihkan nominal
         for key in NOMINAL_KEYS:
@@ -129,11 +209,13 @@ def simpan():
             debitur.nama_pemohon = form_data.get('nama_pemohon', 'Tanpa Nama')
             debitur.no_ktp = form_data.get('no_ktp_pemohon', '000')
             debitur.data_lengkap = json.dumps(form_data)
+            debitur.kategori = kategori 
         else:
             new_debitur = Debitur(
                 nama_pemohon=form_data.get('nama_pemohon', 'Tanpa Nama'),
                 no_ktp=form_data.get('no_ktp_pemohon', '000'),
-                data_lengkap=json.dumps(form_data)
+                data_lengkap=json.dumps(form_data),
+                kategori=kategori 
             )
             db.session.add(new_debitur)
         
@@ -147,28 +229,23 @@ def simpan():
 def generate_docx(id):
     debitur = Debitur.query.get_or_404(id)
     context = json.loads(debitur.data_lengkap)
-    
-    # Atur Locale
-    try:
-        locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
-    except locale.Error:
-        try:
-            locale.setlocale(locale.LC_ALL, 'Indonesian')
-        except locale.Error:
-            locale.setlocale(locale.LC_ALL, '') 
+    kategori = debitur.kategori
+
+    if kategori not in PRODUCT_CATEGORIES:
+        return f"Error: Kategori produk '{kategori}' tidak dikenal.", 404
+        
+    product = PRODUCT_CATEGORIES[kategori]
+    template_docx_name = product.get('template_docx', TEMPLATE_FILENAME_DEFAULT)
             
-    # --- (BARU) BLOK KALKULASI RPC & DSR ---
+    # --- BLOK KALKULASI RPC & DSR ---
     try:
-        # 1. Hitung Angsuran Baru (Usulan)
         plafon = context.get('usulan_plafon_kredit', '0').replace('.', '')
         tenor = context.get('usulan_jangka_waktu_bulan', '0')
         bunga = context.get('usulan_bunga_persen', '0')
         
-        # Kalkulasi PMT (Payment)
         usulan_angsuran = calculate_pmt(plafon, bunga, tenor)
-        context['usulan_angsuran'] = usulan_angsuran # Simpan untuk docx
+        context['usulan_angsuran'] = usulan_angsuran 
 
-        # 2. Hitung Total Angsuran Eksisting
         total_angsuran_eksisting = 0
         if context.get('fasilitas_nihil') != 'ya':
             for i in range(1, 16):
@@ -176,8 +253,11 @@ def generate_docx(id):
                 angsuran_str = context.get(key, '0').replace('.', '')
                 total_angsuran_eksisting += int(angsuran_str) if angsuran_str.isdigit() else 0
         
-        # 3. Hitung RPC
-        penghasilan_str = context.get('estimasi_hak_pensiun', '0').replace('.', '')
+        if kategori.startswith('prapurna'):
+            penghasilan_str = context.get('estimasi_hak_pensiun', '0').replace('.', '')
+        else:
+            penghasilan_str = context.get('taspen_hak_pensiun', '0').replace('.', '')
+            
         penghasilan = int(penghasilan_str) if penghasilan_str.isdigit() else 0
         
         dsc_90_nominal = penghasilan * 0.9
@@ -188,16 +268,14 @@ def generate_docx(id):
         if penghasilan > 0:
             dsr = (total_angsuran_baru / penghasilan) * 100
         
-        # 4. Masukkan hasil kalkulasi ke context
         context['rpc_penghasilan'] = penghasilan
         context['rpc_dsc_90'] = dsc_90_nominal
         context['rpc_total_angsuran_eksisting'] = total_angsuran_eksisting
         context['rpc_maksimal_angsuran'] = maksimal_angsuran
         context['rpc_total_angsuran_baru'] = total_angsuran_baru
-        context['rpc_dsr'] = f"{dsr:.2f}" # Format 2 desimal
+        context['rpc_dsr'] = f"{dsr:.2f}".replace('.', ',') 
 
     except Exception as e:
-        # Gagal kalkulasi, set nilai default agar tidak crash
         context['rpc_dsr'] = "Error"
         print(f"Error saat kalkulasi RPC: {e}")
     # --- AKHIR BLOK KALKULASI ---
@@ -205,37 +283,35 @@ def generate_docx(id):
     # Format Tanggal
     for key in DATE_KEYS:
         if key in context and context[key]:
-            try:
-                date_obj = datetime.strptime(context[key], '%Y-%m-%d')
-                context[key] = date_obj.strftime('%d %B %Y')
-            except ValueError: pass
+            context[key] = format_date_indonesian(context[key])
     
     # Format Nominal (Rupiah)
-    # Tambahkan key RPC ke daftar format
     rpc_keys_to_format = [
         'rpc_penghasilan', 'rpc_dsc_90', 'rpc_total_angsuran_eksisting',
         'rpc_maksimal_angsuran', 'rpc_total_angsuran_baru'
-        # 'usulan_angsuran' sudah ada di NOMINAL_KEYS
     ]
     
     for key in NOMINAL_KEYS + rpc_keys_to_format:
         if key in context and context[key]:
             try:
-                # Cek jika sudah diformat (seperti '87.73')
+                if key == 'rpc_dsr':
+                    continue 
+                    
                 if isinstance(context[key], str) and '.' in context[key]:
-                     nilai_angka = int(float(context[key])) # handle 87.73 -> 87
+                     nilai_angka = int(float(context[key])) 
                 else:
                      nilai_angka = int(context[key])
                 
-                # Format ke '1.000.000'
                 context[key] = f"{nilai_angka:,}".replace(',', '.')
             except (ValueError, TypeError):
                 pass
     
-    template_path = os.path.join(app.root_path, TEMPLATE_FILENAME)
+    template_path = os.path.join(app.root_path, template_docx_name)
     
     if not os.path.exists(template_path):
-        return f"Error: File template {TEMPLATE_FILENAME} tidak ditemukan!", 404
+        template_path = os.path.join(app.root_path, TEMPLATE_FILENAME_DEFAULT)
+        if not os.path.exists(template_path):
+             return f"Error: File template {template_docx_name} dan template default tidak ditemukan!", 404
 
     doc = DocxTemplate(template_path)
     
@@ -263,7 +339,7 @@ def hapus(id):
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    return render_template('admin.html', categories=PRODUCT_CATEGORIES)
 
 @app.route('/upload_template', methods=['POST'])
 def upload_template():
@@ -272,13 +348,18 @@ def upload_template():
         return redirect(url_for('admin'))
     
     file = request.files['file']
-    
+    kategori = request.form.get('kategori')
+
+    if not kategori or kategori not in PRODUCT_CATEGORIES:
+        flash('Kategori template tidak valid.', 'danger')
+        return redirect(url_for('admin'))
+        
     if file.filename == '':
         flash('Tidak ada file yang dipilih.', 'danger')
         return redirect(url_for('admin'))
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(TEMPLATE_FILENAME)
+        filename = secure_filename(PRODUCT_CATEGORIES[kategori]['template_docx'])
         save_path = os.path.join(app.root_path, filename)
         
         try:

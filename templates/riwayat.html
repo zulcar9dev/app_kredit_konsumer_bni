@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,7 +44,8 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    {% if category == 'success' %} <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {% if category == 'success' %} 
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
@@ -61,6 +62,7 @@
                             <th>Tanggal Input</th>
                             <th>Nama Pemohon</th>
                             <th>NIK / KTP</th>
+                            <th>Kategori Produk</th>
                             <th class="text-end">Aksi</th>
                         </tr>
                     </thead>
@@ -70,6 +72,9 @@
                             <td>{{ debitur.tanggal_input.strftime('%d-%m-%Y %H:%M') }}</td>
                             <td class="fw-bold">{{ debitur.nama_pemohon }}</td>
                             <td>{{ debitur.no_ktp }}</td>
+                            <td>
+                                {{ categories[debitur.kategori].nama | default(debitur.kategori, true) }}
+                            </td>
                             <td class="text-end">
                                 <a href="{{ url_for('generate_docx', id=debitur.id) }}" class="btn btn-success btn-sm">🖨️ Generate Docx</a>
                                 <a href="{{ url_for('edit', id=debitur.id) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
@@ -78,7 +83,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center py-4">
+                            <td colspan="5" class="text-center py-4">
                                 {% if search_query %}
                                     Data tidak ditemukan untuk pencarian: "{{ search_query }}"
                                 {% else %}
@@ -94,14 +99,11 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         (function() {
             const themeToggler = document.getElementById('theme-toggler');
             if (!themeToggler) return;
     
-            // Fungsi untuk menerapkan tema
             function applyTheme(theme) {
                 if (theme === 'dark') {
                     document.documentElement.setAttribute('data-bs-theme', 'dark');
@@ -112,7 +114,6 @@
                 }
             }
     
-            // Listener untuk tombol
             themeToggler.addEventListener('click', () => {
                 const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
                 applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
