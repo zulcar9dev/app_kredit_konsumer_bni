@@ -19,62 +19,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-TEMPLATE_FILENAME_DEFAULT = "template_kredit.docx" # Default jika template spesifik tdk ada
+TEMPLATE_FILENAME_DEFAULT = "template_kredit.docx"
 ALLOWED_EXTENSIONS = {'docx'}
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# (PERBAIKAN) Daftar Bulan Indonesia
-INDONESIAN_MONTHS = [
-    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-]
-
-# (PERBAIKAN) Fungsi helper format tanggal yang hilang
-def format_date_indonesian(date_str):
-    """Mengubah format YYYY-MM-DD menjadi DD NamaBulan YYYY"""
-    try:
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        day = date_obj.strftime('%d')
-        month = INDONESIAN_MONTHS[date_obj.month - 1]
-        year = date_obj.strftime('%Y')
-        return f"{day} {month} {year}"
-    except (ValueError, TypeError):
-        return date_str # Kembalikan string asli jika format salah
-
-# Daftar Key untuk pemformatan
-DATE_KEYS = [
-    'tgl_lahir_pemohon', 'tgl_terbit_ktp', 'tgl_mulai_kerja',
-    'tgl_sk_cpns', 'tgl_sk_golongan', 'tgl_pensiun_pemohon',
-    'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
-]
-
-NOMINAL_KEYS = [
-    'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', 
-    'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
-    'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
-    'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
-    'info_gaji_bendahara', 
-    'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', 
-    'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', 
-    'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', 
-    'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran', 
-    'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran', 
-    'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran', 
-    'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran', 
-    'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran', 
-    'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran', 
-    'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran', 
-    'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran', 
-    'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran', 
-    'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran', 
-    'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran', 
-    'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', 
-]
-
-# Daftar kategori produk
+# (PERBAIKAN) Daftar kategori produk sekarang di atas
 PRODUCT_CATEGORIES = {
     'prapurna_reguler': {
         'nama': 'BNI Fleksi Pensiun Prapurna Reguler',
@@ -83,7 +31,7 @@ PRODUCT_CATEGORIES = {
     },
     'prapurna_takeover': {
         'nama': 'BNI Fleksi Pensiun Prapurna Take Over',
-        'template_form': 'form_prapurna_reguler.html', # SEMENTARA
+        'template_form': 'form_prapurna_takeover.html', 
         'template_docx': 'template_prapurna_takeover.docx'
     },
     'purna_reguler': {
@@ -98,22 +46,56 @@ PRODUCT_CATEGORIES = {
     }
 }
 
-# Fungsi kalkulasi angsuran (PMT)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+INDONESIAN_MONTHS = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+]
+
+def format_date_indonesian(date_str):
+    """Mengubah format YYYY-MM-DD menjadi DD NamaBulan YYYY"""
+    try:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        day = date_obj.strftime('%d')
+        month = INDONESIAN_MONTHS[date_obj.month - 1]
+        year = date_obj.strftime('%Y')
+        return f"{day} {month} {year}"
+    except (ValueError, TypeError):
+        return date_str 
+
+DATE_KEYS = [
+    'tgl_lahir_pemohon', 'tgl_terbit_ktp', 'tgl_mulai_kerja',
+    'tgl_sk_cpns', 'tgl_sk_golongan', 'tgl_pensiun_pemohon',
+    'tgl_slik', 'mitigasi_slik_tgl_surat', 'tgl_call_memo'
+]
+
+NOMINAL_KEYS = [
+    'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', 
+    'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
+    'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
+    'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
+    'biaya_administrasi', # <-- TAMBAHKAN BARIS INI
+    'info_gaji_bendahara', 
+    'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', 
+    # ... (sisa Slik bank Anda) ...
+    'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', 
+]
+
 def calculate_pmt(principal, annual_rate_percent, months):
     try:
         principal = float(principal)
         annual_rate_percent = float(annual_rate_percent)
         months = int(months)
-        
         if annual_rate_percent == 0:
             return principal / months if months > 0 else 0
-        
         monthly_rate = (annual_rate_percent / 100) / 12
         if months == 0:
             return 0
-        
         pmt = principal * (monthly_rate * (1 + monthly_rate) ** months) / ((1 + monthly_rate) ** months - 1)
-        return math.ceil(pmt) # Pembulatan ke atas
+        return math.ceil(pmt)
     except (ValueError, TypeError, ZeroDivisionError):
         return 0
 
@@ -199,7 +181,6 @@ def simpan():
         return redirect(url_for('index'))
         
     try:
-        # Bersihkan nominal
         for key in NOMINAL_KEYS:
             if key in form_data:
                 form_data[key] = form_data[key].replace('.', '')
@@ -279,6 +260,22 @@ def generate_docx(id):
         context['rpc_dsr'] = "Error"
         print(f"Error saat kalkulasi RPC: {e}")
     # --- AKHIR BLOK KALKULASI ---
+    
+    # --- (BLOK BARU) MEMBUAT DAFTAR BANK TAKE OVER ---
+    try:
+        takeover_banks = []
+        if context.get('fasilitas_nihil') != 'ya':
+            for i in range(1, 16):
+                takeover_key = f'slik_bank_{i}_takeover'
+                bank_name_key = f'slik_bank_{i}_nama'
+                if context.get(takeover_key) == 'ya' and context.get(bank_name_key):
+                    takeover_banks.append(context.get(bank_name_key))
+        
+        context['takeover_bank_list'] = ", ".join(takeover_banks)
+    except Exception as e:
+        context['takeover_bank_list'] = "[Error Daftar Bank]"
+        print(f"Error saat membuat daftar bank take over: {e}")
+    # --- AKHIR BLOK BARU ---
 
     # Format Tanggal
     for key in DATE_KEYS:

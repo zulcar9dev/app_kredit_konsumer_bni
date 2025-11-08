@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Prapurna Reguler</title>
+    <title>Formulir Prapurna Take Over</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .tab-content { padding-top: 20px; }
@@ -40,12 +40,12 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
-            <h2>Formulir Input: BNI Fleksi Pensiun Prapurna Reguler</h2>
+            <h2>Formulir Input: BNI Fleksi Pensiun Prapurna Take Over</h2>
             <p>Silakan isi data debitur dengan lengkap di bawah ini. Gunakan tab untuk berpindah kategori.</p>
             
             <form method="POST" action="/simpan" id="mainForm">
                 <input type="hidden" name="debitur_id" value="{{ debitur_id | default('', true) }}">
-                <input type="hidden" name="kategori" value="{{ kategori | default('prapurna_reguler', true) }}">
+                <input type="hidden" name="kategori" value="{{ kategori | default('prapurna_takeover', true) }}">
 
                 <ul class="nav nav-tabs" id="formTabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -131,11 +131,19 @@
                                     <input type="text" class="form-control" id="slik_bank_1_angsuran" name="slik_bank_1_angsuran" value="{{ data.get('slik_bank_1_angsuran', '') }}" data-type="rupiah">
                                 </div>
                             </div>
-                            <div class="form-check mt-1">
-                                <input class="form-check-input toggle-alasan" type="checkbox" id="slik_bank_1_alasan_aktif" name="slik_bank_1_alasan_aktif" value="ya" data-target-alasan="#slik_bank_1_alasan" {% if data.get('slik_bank_1_alasan_aktif') == 'ya' %}checked{% endif %}>
-                                <label class="form-check-label" for="slik_bank_1_alasan_aktif">
-                                    Tambahkan Alasan/Keterangan
-                                </label>
+                            <div class="d-flex">
+                                <div class="form-check mt-1 me-4">
+                                    <input class="form-check-input" type="checkbox" id="slik_bank_1_takeover" name="slik_bank_1_takeover" value="ya" {% if data.get('slik_bank_1_takeover') == 'ya' %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-danger" for="slik_bank_1_takeover">
+                                        Pelunasan/Take Over?
+                                    </label>
+                                </div>
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input toggle-alasan" type="checkbox" id="slik_bank_1_alasan_aktif" name="slik_bank_1_alasan_aktif" value="ya" data-target-alasan="#slik_bank_1_alasan" {% if data.get('slik_bank_1_alasan_aktif') == 'ya' %}checked{% endif %}>
+                                    <label class="form-check-label" for="slik_bank_1_alasan_aktif">
+                                        Tambahkan Alasan/Keterangan
+                                    </label>
+                                </div>
                             </div>
                             <div class="mb-3 alasan-wrapper">
                                 <label for="slik_bank_1_alasan" class="form-label">Alasan/Keterangan Fasilitas 1</label>
@@ -152,6 +160,7 @@
                                     {% set angsuran_key = 'slik_bank_' ~ i ~ '_angsuran' %}
                                     {% set alasan_aktif_key = 'slik_bank_' ~ i ~ '_alasan_aktif' %}
                                     {% set alasan_key = 'slik_bank_' ~ i ~ '_alasan' %}
+                                    {% set takeover_key = 'slik_bank_' ~ i ~ '_takeover' %}
                                     
                                     <div id="slik-facility-{{ i }}" class="slik-facility-hidden" 
                                          {% if data.get(nama_key) %}style="display: block;"{% endif %}>
@@ -190,11 +199,19 @@
                                                 <input type="text" class="form-control" id="{{ angsuran_key }}" name="{{ angsuran_key }}" value="{{ data.get(angsuran_key, '') }}" data-type="rupiah">
                                             </div>
                                         </div>
-                                        <div class="form-check mt-1">
-                                            <input class="form-check-input toggle-alasan" type="checkbox" id="{{ alasan_aktif_key }}" name="{{ alasan_aktif_key }}" value="ya" data-target-alasan="#{{ alasan_key }}" {% if data.get(alasan_aktif_key) == 'ya' %}checked{% endif %}>
-                                            <label class="form-check-label" for="{{ alasan_aktif_key }}">
-                                                Tambahkan Alasan/Keterangan
-                                            </label>
+                                        <div class="d-flex">
+                                            <div class="form-check mt-1 me-4">
+                                                <input class="form-check-input" type="checkbox" id="{{ takeover_key }}" name="{{ takeover_key }}" value="ya" {% if data.get(takeover_key) == 'ya' %}checked{% endif %}>
+                                                <label class="form-check-label fw-bold text-danger" for="{{ takeover_key }}">
+                                                    Pelunasan/Take Over?
+                                                </label>
+                                            </div>
+                                            <div class="form-check mt-1">
+                                                <input class="form-check-input toggle-alasan" type="checkbox" id="{{ alasan_aktif_key }}" name="{{ alasan_aktif_key }}" value="ya" data-target-alasan="#{{ alasan_key }}" {% if data.get(alasan_aktif_key) == 'ya' %}checked{% endif %}>
+                                                <label class="form-check-label" for="{{ alasan_aktif_key }}">
+                                                    Tambahkan Alasan/Keterangan
+                                                </label>
+                                            </div>
                                         </div>
                                         <div class="mb-3 alasan-wrapper">
                                             <label for="{{ alasan_key }}" class="form-label">Alasan/Keterangan Fasilitas {{ i }}</label>
@@ -714,7 +731,7 @@
                 <div class="row"><div class="col-md-4">DSR Pemohon (%):</div><div class="col-md-8"><span id="preview_dsr_pemohon"></span></div></div>
                 <div class="row"><div class="col-md-4">Program Kredit:</div><div class="col-md-8"><span id="preview_program_kredit"></span></div></div>
                 <div class="row"><div class="col-md-4">Usulan Plafon (Rp):</div><div class="col-md-8"><span id="preview_usulan_plafon_kredit"></span></div></div>
-                <div class="row"><div class="col-md-4">Usulan J.Waktu (Bulan):</div><div class="col-md-8"><span id="preview_usulan_jangka_waktu_bulan"></span></div></div>
+                <div class="row"><div class_row"><div class="col-md-4">Usulan J.Waktu (Bulan):</div><div class="col-md-8"><span id="preview_usulan_jangka_waktu_bulan"></span></div></div>
                 <div class="row"><div class="col-md-4">Usulan Bunga (%):</div><div class="col-md-8"><span id="preview_usulan_bunga_persen"></span></div></div>
                 <div class="row"><div class="col-md-4">Angsuran Diusulkan (Rp):</div><div class="col-md-8"><span id="preview_usulan_angsuran"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Provisi (%):</div><div class="col-md-8"><span id="preview_biaya_provisi_persen"></span></div></div>
