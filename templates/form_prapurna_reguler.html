@@ -10,6 +10,8 @@
         .slik-facility-hidden { display: none; }
         .mitigasi-hidden { display: none; }
         .alasan-wrapper { display: none; }
+        /* (PERUBAHAN) Menambahkan class untuk syarat kustom */
+        .syarat-kustom-hidden { display: none; }
         
         /* Style untuk Preview Modal */
         #previewModal .modal-body {
@@ -47,6 +49,7 @@
                 <input type="hidden" name="debitur_id" value="{{ debitur_id | default('', true) }}">
                 <input type="hidden" name="kategori" value="{{ kategori | default('prapurna_reguler', true) }}">
 
+                <!-- Urutan Tab yang Benar -->
                 <ul class="nav nav-tabs" id="formTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="pengajuan-slik-tab" data-bs-toggle="tab" data-bs-target="#pengajuan-slik" type="button" role="tab" aria-controls="pengajuan-slik" aria-selected="true">A. Pengajuan & SLIK</button>
@@ -65,8 +68,12 @@
                     </li>
                 </ul>
 
+                <!-- Urutan Konten Tab yang Benar -->
                 <div class="tab-content" id="formTabsContent">
                     
+                    <!-- ============================================= -->
+                    <!-- TAB A: PENGAJUAN & SLIK -->
+                    <!-- ============================================= -->
                     <div class="tab-pane fade show active" id="pengajuan-slik" role="tabpanel" aria-labelledby="pengajuan-slik-tab">
                         <h4 class="mb-3">A.1. Pengajuan Kredit</h4>
                         <div class="row">
@@ -206,7 +213,9 @@
                             <div class="mt-2 mb-3">
                                 <button type="button" id="add-slik-facility" class="btn btn-sm btn-outline-primary">+ Tambah Fasilitas</button>
                             </div>
-                        </div> <div class="form-check mt-4">
+                        </div> <!-- End all-facilities-wrapper -->
+
+                        <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" id="toggle-mitigasi" name="mitigasi_aktif" value="ya" {% if data.get('mitigasi_aktif') == 'ya' %}checked{% endif %}>
                             <label class="form-check-label fw-bold" for="toggle-mitigasi">
                                 Mitigasi SLIK (Aktifkan jika ada)
@@ -230,6 +239,9 @@
                         </div>
                     </div>
 
+                    <!-- ============================================= -->
+                    <!-- TAB B: DATA PEMOHON -->
+                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="pemohon" role="tabpanel" aria-labelledby="pemohon-tab">
                         <div class="mb-3">
                             <label for="nama_pemohon" class="form-label">Nama Pemohon</label>
@@ -288,6 +300,9 @@
                         </div>
                     </div>
 
+                    <!-- ============================================= -->
+                    <!-- TAB C: PEKERJAAN -->
+                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="pekerjaan" role="tabpanel" aria-labelledby="pekerjaan-tab">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -353,6 +368,9 @@
                         </div>
                     </div>
 
+                    <!-- ============================================= -->
+                    <!-- TAB D: VERIFIKASI -->
+                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="verifikasi" role="tabpanel" aria-labelledby="verifikasi-tab">
                         <h4 class="mb-3">D.1. Verifikasi Penghasilan & Taspen</h4>
                         <div class="row">
@@ -457,6 +475,9 @@
                         </div>
                     </div>
 
+                    <!-- ============================================= -->
+                    <!-- TAB E: USULAN KREDIT (PERUBAHAN DI SINI) -->
+                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="usulan" role="tabpanel" aria-labelledby="usulan-tab">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -509,8 +530,9 @@
                                 <input type="text" class="form-control" id="biaya_tata_laksana_nominal" name="biaya_tata_laksana_nominal" value="{{ data.get('biaya_tata_laksana_nominal', '') }}" readonly data-type="rupiah">
                             </div>
                         </div>
-
-<div class="row">
+                        
+                        <!-- (PERUBAHAN) Field Biaya Administrasi Manual -->
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="biaya_administrasi" class="form-label">Biaya Administrasi (Rp)</label>
                                 <input type="text" class="form-control" id="biaya_administrasi" name="biaya_administrasi" value="{{ data.get('biaya_administrasi', '') }}" data-type="rupiah">
@@ -531,6 +553,7 @@
                         </div>
                         <hr class="my-4">
                         <h4 class="mb-3">Blokir Angsuran</h4>
+                        <!-- ... (Konten Blokir Angsuran tidak berubah) ... -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="blokir_angsuran_total" class="form-label">Total (kali)</label>
@@ -571,9 +594,49 @@
                                 <input type="text" class="form-control" id="blokir_angsuran_lunas_terbilang" name="blokir_angsuran_lunas_terbilang" value="{{ data.get('blokir_angsuran_lunas_terbilang', '') }}" readonly>
                             </div>
                         </div>
+                        
+                        <!-- (PERUBAHAN) Bagian Syarat Tambahan Kustom -->
+                        <hr class="my-4">
+                        <h4 class="mb-3">Syarat Tambahan Kustom</h4>
+                        <p>Tambahkan syarat kustom yang akan muncul di dokumen. Pilih lokasinya (Penandatanganan atau Pencairan).</p>
+                        
+                        <div id="syarat-kustom-container">
+                            {% for i in range(1, 11) %}
+                                {% set teks_key = 'syarat_kustom_' ~ i ~ '_teks' %}
+                                {% set lokasi_key = 'syarat_kustom_' ~ i ~ '_lokasi' %}
+                                <div id="syarat-kustom-{{ i }}" class="syarat-kustom-hidden"
+                                     {% if data.get(teks_key) %}style="display: block;"{% endif %}>
+                                    <hr>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="fw-bold mb-0">Syarat Tambahan {{ i }}</p>
+                                        <button type="button" class="btn btn-danger btn-sm syarat-delete-btn" data-syarat-id="{{ i }}">Hapus</button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="{{ teks_key }}" class="form-label">Teks Syarat</label>
+                                        <textarea class="form-control" id="{{ teks_key }}" name="{{ teks_key }}" rows="2">{{ data.get(teks_key, '') }}</textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label d-block">Lokasi di Dokumen</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="{{ lokasi_key }}_penandatanganan" name="{{ lokasi_key }}" value="penandatanganan" {% if data.get(lokasi_key) == 'penandatanganan' or not data.get(lokasi_key) %}checked{% endif %}>
+                                            <label class="form-check-label" for="{{ lokasi_key }}_penandatanganan">Syarat Penandatanganan</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="{{ lokasi_key }}_pencairan" name="{{ lokasi_key }}" value="pencairan" {% if data.get(lokasi_key) == 'pencairan' %}checked{% endif %}>
+                                            <label class="form-check-label" for="{{ lokasi_key }}_pencairan">Syarat Pencairan</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-2 mb-3">
+                            <button type="button" id="add-syarat-kustom" class="btn btn-sm btn-outline-success">+ Tambah Syarat Kustom</button>
+                        </div>
+                        
                     </div>
                 </div>
 
+                <!-- Tombol Aksi -->
                 <div class="mt-4 d-flex justify-content-between align-items-center">
                     <div>
                         <button type="submit" class="btn btn-primary btn-lg">
@@ -594,6 +657,9 @@
 </div>
 
 
+<!-- =================================================================== -->
+<!-- MODAL PREVIEW SEBELUM SIMPAN (PERUBAHAN) -->
+<!-- =================================================================== -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl"> 
         <div class="modal-content">
@@ -605,6 +671,8 @@
                 <p>Mohon periksa kembali data di bawah ini. Jika sudah benar, klik "Ya, Simpan Data".</p>
                 <hr>
 
+                <!-- (Urutan Preview Sesuai Tab) -->
+                
                 <h4 class="mb-3 mt-4">A.1. Pengajuan Kredit</h4>
                 <div class="row"><div class="col-md-4">Plafon Dimohon (Rp):</div><div class="col-md-8"><span id="preview_plafon_kredit_dimohon"></span></div></div>
                 <div class="row"><div class="col-md-4">Jangka Waktu (Bulan):</div><div class="col-md-8"><span id="preview_jangka_waktu_dimohon_bulan"></span></div></div>
@@ -730,6 +798,24 @@
                 <div class="row"><div class="col-md-4">Pindah Gaji (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_pindah_gaji"></span> (<span id="preview_blokir_angsuran_pindah_gaji_terbilang"></span>)</div></div>
                 <div class="row"><div class="col-md-4">Wajib (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_lunas"></span> (<span id="preview_blokir_angsuran_lunas_terbilang"></span>)</div></div>
 
+                <!-- (PERUBAHAN) Preview Syarat Kustom -->
+                <h5 class="mb-3 mt-4">Syarat Tambahan Kustom</h5>
+                <div id="preview-syarat-kustom-penandatanganan" class="slik-facility-hidden">
+                    <p class="fw-bold mb-1">Syarat Penandatanganan Tambahan:</p>
+                    <ul id="preview-list-penandatanganan">
+                        <!-- Diisi oleh JS -->
+                    </ul>
+                </div>
+                <div id="preview-syarat-kustom-pencairan" class="slik-facility-hidden">
+                    <p class="fw-bold mb-1 mt-3">Syarat Pencairan Tambahan:</p>
+                    <ul id="preview-list-pencairan">
+                        <!-- Diisi oleh JS -->
+                    </ul>
+                </div>
+                <div id="preview-syarat-kustom-none" class="slik-facility-hidden">
+                    <p class="text-body-secondary">Tidak ada syarat tambahan kustom.</p>
+                </div>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal, Cek Ulang</button>
@@ -738,8 +824,17 @@
         </div>
     </div>
 </div>
+<!-- =================================================================== -->
+<!-- AKHIR DARI MODAL PREVIEW                                          -->
+<!-- =================================================================== -->
+
+
+<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- ============================================= -->
+<!-- SCRIPT KALKULASI OTOMATIS (PERUBAHAN) -->
+<!-- ============================================= -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
@@ -783,11 +878,10 @@
         const provisiNominalInput = document.getElementById('biaya_provisi_nominal');
         const tataLaksanaPersenInput = document.getElementById('biaya_tata_laksana_persen');
         const tataLaksanaNominalInput = document.getElementById('biaya_tata_laksana_nominal');
-        
         const estimasiHakPensiunInput = document.getElementById('estimasi_hak_pensiun');
         const dsrPemohonInput = document.getElementById('dsr_pemohon');
         
-        // (BARU) Referensi untuk Biaya Administrasi
+        // (PERUBAHAN) Referensi untuk Biaya Administrasi
         const biayaAdminInput = document.getElementById('biaya_administrasi');
         const bebasBiayaAdminCheckbox = document.getElementById('bebas_biaya_administrasi');
 
@@ -798,11 +892,12 @@
             { input: document.getElementById('blokir_angsuran_lunas'), output: document.getElementById('blokir_angsuran_lunas_terbilang') }
         ];
 
+        // (PERUBAHAN) Menambahkan 'biaya_administrasi'
         const nominalInputIDs = [
             'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran',
             'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
             'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
-            'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi', // <-- Ditambahkan
+            'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi', 
             'info_gaji_bendahara', 
             'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran',
             'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran',
@@ -824,6 +919,10 @@
         // Referensi SLIK Dinamis
         const addSlikButton = document.getElementById('add-slik-facility');
         const maxFacilities = 15;
+        
+        // (PERUBAHAN) Referensi Syarat Kustom
+        const addSyaratButton = document.getElementById('add-syarat-kustom');
+        const maxSyarat = 10;
         
         // Referensi Mitigasi Checkbox
         const toggleMitigasi = document.getElementById('toggle-mitigasi');
@@ -855,7 +954,10 @@
             }
         }
         function hitungLamaKerja() {
-            if (!tglMulaiKerjaInput.value) { lamaKerjaInput.value = ''; return; }
+            if (!tglMulaiKerjaInput.value) { 
+                if(lamaKerjaInput) lamaKerjaInput.value = ''; 
+                return; 
+            }
             try {
                 const tglMulai = new Date(tglMulaiKerjaInput.value);
                 const hariIni = new Date();
@@ -993,12 +1095,12 @@
             document.querySelectorAll('.toggle-alasan').forEach(handleAlasanToggle);
         }
         
-        // (BARU) Fungsi toggle untuk Biaya Administrasi
+        // (PERUBAHAN) Fungsi toggle untuk Biaya Administrasi
         function handleBebasAdminToggle() {
-            if (bebasBiayaAdminCheckbox.checked) {
+            if (bebasBiayaAdminCheckbox && bebasBiayaAdminCheckbox.checked) {
                 biayaAdminInput.disabled = true;
                 biayaAdminInput.value = '';
-            } else {
+            } else if (biayaAdminInput) {
                 biayaAdminInput.disabled = false;
             }
         }
@@ -1013,18 +1115,10 @@
                     if (input.tagName === 'TEXTAREA') {
                         previewElement.textContent = input.value;
                     } else if (input.type === 'checkbox') {
-                        // Logika Take Over
-                        if (input.id.includes('_takeover') && input.checked) {
-                            previewElement.textContent = ' (Take Over)';
-                        } else if (input.id.includes('_takeover') && !input.checked) {
-                            previewElement.textContent = '';
-                        }
-                        
-                        // (BARU) Logika Biaya Admin
+                        // (PERUBAHAN) Logika Biaya Admin
                         if (input.id === 'bebas_biaya_administrasi' && input.checked) {
                             previewElement.textContent = 'Bebas Biaya Administrasi';
                         } else if (input.id === 'bebas_biaya_administrasi' && !input.checked) {
-                            // Ambil nilai dari input manual
                             previewElement.textContent = document.getElementById('biaya_administrasi').value;
                         }
 
@@ -1070,6 +1164,39 @@
                     }
                 }
             }
+            
+            // (PERUBAHAN) Logika Preview Syarat Kustom
+            const listPenandatanganan = document.getElementById('preview-list-penandatanganan');
+            const listPencairan = document.getElementById('preview-list-pencairan');
+            const noSyaratDiv = document.getElementById('preview-syarat-kustom-none');
+            
+            listPenandatanganan.innerHTML = '';
+            listPencairan.innerHTML = '';
+            let hasSyaratPenandatanganan = false;
+            let hasSyaratPencairan = false;
+
+            for (let i = 1; i <= maxSyarat; i++) {
+                const teksEl = document.getElementById(`syarat_kustom_${i}_teks`);
+                if (teksEl && teksEl.value) { 
+                    const teks = teksEl.value;
+                    const lokasi = document.querySelector(`input[name="syarat_kustom_${i}_lokasi"]:checked`);
+                    if (lokasi && lokasi.value === 'penandatanganan') {
+                        const li = document.createElement('li');
+                        li.textContent = teks;
+                        listPenandatanganan.appendChild(li);
+                        hasSyaratPenandatanganan = true;
+                    } else if (lokasi && lokasi.value === 'pencairan') {
+                        const li = document.createElement('li');
+                        li.textContent = teks;
+                        listPencairan.appendChild(li);
+                        hasSyaratPencairan = true;
+                    }
+                }
+            }
+            
+            document.getElementById('preview-syarat-kustom-penandatanganan').style.display = hasSyaratPenandatanganan ? 'block' : 'none';
+            document.getElementById('preview-syarat-kustom-pencairan').style.display = hasSyaratPencairan ? 'block' : 'none';
+            noSyaratDiv.style.display = (!hasSyaratPenandatanganan && !hasSyaratPencairan) ? 'block' : 'none';
         }
 
         // --- 3. EVENT LISTENERS ---
@@ -1081,7 +1208,7 @@
         if (jangkaWaktuDimohonInput) jangkaWaktuDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
         if (bungaUsulanInput) bungaUsulanInput.addEventListener('input', calculateNewPMT);
         
-        // (BARU) Listener untuk Biaya Admin
+        // (PERUBAHAN) Listener untuk Biaya Admin
         if (bebasBiayaAdminCheckbox) {
             bebasBiayaAdminCheckbox.addEventListener('change', handleBebasAdminToggle);
         }
@@ -1127,6 +1254,51 @@
             });
         }
         
+        // (PERUBAHAN) Listener untuk Tombol Syarat Kustom
+        if (addSyaratButton) {
+            addSyaratButton.addEventListener('click', function() {
+                let found = false;
+                for (let i = 1; i <= maxSyarat; i++) {
+                    const nextSyarat = document.getElementById('syarat-kustom-' + i);
+                    if (nextSyarat && window.getComputedStyle(nextSyarat).display === 'none') {
+                        nextSyarat.style.display = 'block';
+                        found = true;
+                        break; 
+                    }
+                }
+                let hasMore = false;
+                for (let i = 1; i <= maxSyarat; i++) {
+                    const syarat = document.getElementById('syarat-kustom-' + i);
+                    if (syarat && window.getComputedStyle(syarat).display === 'none') {
+                        hasMore = true;
+                        break;
+                    }
+                }
+                if (!hasMore) {
+                    addSyaratButton.style.display = 'none';
+                }
+            });
+        }
+        
+        // (PERUBAHAN) Listener Hapus Syarat Kustom (Delegasi)
+        document.getElementById('syarat-kustom-container').addEventListener('click', function(e) {
+            if (e.target.classList.contains('syarat-delete-btn')) {
+                const syaratId = e.target.getAttribute('data-syarat-id');
+                const syaratBlock = document.getElementById('syarat-kustom-' + syaratId);
+                if (syaratBlock) {
+                    syaratBlock.style.display = 'none';
+                    syaratBlock.querySelectorAll('input, textarea').forEach(input => {
+                        if (input.type === 'radio' || input.type === 'checkbox') {
+                            input.checked = false;
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                    addSyaratButton.style.display = 'block';
+                }
+            }
+        });
+
         document.getElementById('all-facilities-wrapper').addEventListener('click', function(e) {
             if (e.target.classList.contains('slik-delete-btn')) {
                 const facilityId = e.target.getAttribute('data-facility-id');
@@ -1187,7 +1359,6 @@
             hitungUsia();
             hitungLamaKerja(); 
             syncPengajuanKeUsulan(); 
-            
             calculateDSR(); 
             
             pairsTerbilang.forEach(pair => {
@@ -1196,35 +1367,44 @@
                 }
             });
             
-            // (PERBAIKAN LINTER)
+            // (PERUBAHAN LINTER & PERUBAHAN)
             const isNihilString = "{{ data.get('fasilitas_nihil', 'no') }}";
             const isMitigasiString = "{{ data.get('mitigasi_aktif', 'no') }}";
-            const isBebasAdminString = "{{ data.get('bebas_biaya_administrasi', 'no') }}"; // (BARU)
+            const isBebasAdminString = "{{ data.get('bebas_biaya_administrasi', 'no') }}"; 
             
             const isNihil = (isNihilString === 'ya');
             const isMitigasi = (isMitigasiString === 'ya');
-            const isBebasAdmin = (isBebasAdminString === 'ya'); // (BARU)
+            const isBebasAdmin = (isBebasAdminString === 'ya'); 
 
             toggleNihil.checked = isNihil;
             toggleMitigasi.checked = isMitigasi;
-            bebasBiayaAdminCheckbox.checked = isBebasAdmin; // (BARU)
+            if (bebasBiayaAdminCheckbox) bebasBiayaAdminCheckbox.checked = isBebasAdmin; 
             
             handleNihilToggle();
             handleMitigasiToggle();
             initAlasanCheckboxes();
-            handleBebasAdminToggle(); // (BARU)
+            if (bebasBiayaAdminCheckbox) handleBebasAdminToggle(); 
             
-            let allVisibleOnLoad = true;
+            let allSlikVisible = true;
             for (let i = 2; i <= maxFacilities; i++) {
                 const facility = document.getElementById('slik-facility-' + i); 
                 if (!facility || window.getComputedStyle(facility).display === 'none') {
-                    allVisibleOnLoad = false;
+                    allSlikVisible = false;
                     break;
                 }
             }
-            if (allVisibleOnLoad) {
-                addSlikButton.style.display = 'none';
+            if (allSlikVisible) addSlikButton.style.display = 'none';
+
+            // (PERUBAHAN) Cek Tombol "Tambah Syarat Kustom"
+            let allSyaratVisible = true;
+            for (let i = 1; i <= maxSyarat; i++) {
+                const syarat = document.getElementById('syarat-kustom-' + i); 
+                if (!syarat || window.getComputedStyle(syarat).display === 'none') {
+                    allSyaratVisible = false;
+                    break;
+                }
             }
+            if (allSyaratVisible) addSyaratButton.style.display = 'none';
             
         }, 10); 
         

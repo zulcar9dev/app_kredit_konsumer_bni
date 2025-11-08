@@ -22,7 +22,7 @@ db = SQLAlchemy(app)
 TEMPLATE_FILENAME_DEFAULT = "template_kredit.docx"
 ALLOWED_EXTENSIONS = {'docx'}
 
-# (PERBAIKAN) Daftar kategori produk sekarang di atas
+# Daftar kategori produk
 PRODUCT_CATEGORIES = {
     'prapurna_reguler': {
         'nama': 'BNI Fleksi Pensiun Prapurna Reguler',
@@ -76,11 +76,22 @@ NOMINAL_KEYS = [
     'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', 
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
     'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
-    'biaya_provisi_nominal', 'biaya_tata_laksana_nominal',
-    'biaya_administrasi', # <-- TAMBAHKAN BARIS INI
+    'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi',
     'info_gaji_bendahara', 
     'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', 
-    # ... (sisa Slik bank Anda) ...
+    'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', 
+    'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', 
+    'slik_bank_4_maks', 'slik_bank_4_outs', 'slik_bank_4_angsuran', 
+    'slik_bank_5_maks', 'slik_bank_5_outs', 'slik_bank_5_angsuran', 
+    'slik_bank_6_maks', 'slik_bank_6_outs', 'slik_bank_6_angsuran', 
+    'slik_bank_7_maks', 'slik_bank_7_outs', 'slik_bank_7_angsuran', 
+    'slik_bank_8_maks', 'slik_bank_8_outs', 'slik_bank_8_angsuran', 
+    'slik_bank_9_maks', 'slik_bank_9_outs', 'slik_bank_9_angsuran', 
+    'slik_bank_10_maks', 'slik_bank_10_outs', 'slik_bank_10_angsuran', 
+    'slik_bank_11_maks', 'slik_bank_11_outs', 'slik_bank_11_angsuran', 
+    'slik_bank_12_maks', 'slik_bank_12_outs', 'slik_bank_12_angsuran', 
+    'slik_bank_13_maks', 'slik_bank_13_outs', 'slik_bank_13_angsuran', 
+    'slik_bank_14_maks', 'slik_bank_14_outs', 'slik_bank_14_angsuran', 
     'slik_bank_15_maks', 'slik_bank_15_outs', 'slik_bank_15_angsuran', 
 ]
 
@@ -261,8 +272,9 @@ def generate_docx(id):
         print(f"Error saat kalkulasi RPC: {e}")
     # --- AKHIR BLOK KALKULASI ---
     
-    # --- (BLOK BARU) MEMBUAT DAFTAR BANK TAKE OVER ---
+    # --- (PERBAIKAN) MEMBUAT DAFTAR BANK & SYARAT KUSTOM ---
     try:
+        # 1. Daftar Bank Take Over
         takeover_banks = []
         if context.get('fasilitas_nihil') != 'ya':
             for i in range(1, 16):
@@ -270,12 +282,33 @@ def generate_docx(id):
                 bank_name_key = f'slik_bank_{i}_nama'
                 if context.get(takeover_key) == 'ya' and context.get(bank_name_key):
                     takeover_banks.append(context.get(bank_name_key))
-        
         context['takeover_bank_list'] = ", ".join(takeover_banks)
+        
+        # 2. Daftar Syarat Kustom
+        syarat_penandatanganan_list = []
+        syarat_pencairan_list = []
+        for i in range(1, 11): # Sesuai 10 field di HTML
+            teks_key = f'syarat_kustom_{i}_teks'
+            lokasi_key = f'syarat_kustom_{i}_lokasi'
+            
+            teks = context.get(teks_key)
+            lokasi = context.get(lokasi_key)
+            
+            if teks: # Hanya jika ada teks syarat
+                if lokasi == 'penandatanganan':
+                    syarat_penandatanganan_list.append(teks)
+                elif lokasi == 'pencairan':
+                    syarat_pencairan_list.append(teks)
+        
+        context['syarat_penandatanganan_list'] = syarat_penandatanganan_list
+        context['syarat_pencairan_list'] = syarat_pencairan_list
+        
     except Exception as e:
         context['takeover_bank_list'] = "[Error Daftar Bank]"
-        print(f"Error saat membuat daftar bank take over: {e}")
-    # --- AKHIR BLOK BARU ---
+        context['syarat_penandatanganan_list'] = []
+        context['syarat_pencairan_list'] = []
+        print(f"Error saat memproses daftar kustom: {e}")
+    # --- AKHIR BLOK PERBAIKAN ---
 
     # Format Tanggal
     for key in DATE_KEYS:
@@ -315,7 +348,8 @@ def generate_docx(id):
     try:
         doc.render(context)
     except Exception as e:
-        return f"Error saat render template: {e}.", 500
+        print(f"Error saat render template: {e}") # Cetak error ke terminal
+        return f"Error saat render template: {e}.", 500 # Tampilkan error ke browser
 
     file_stream = BytesIO()
     doc.save(file_stream)
