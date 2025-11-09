@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Prapurna Take Over</title>
+    <title>Formulir Purna Reguler</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .tab-content { padding-top: 20px; }
         .slik-facility-hidden { display: none; }
         .mitigasi-hidden { display: none; }
         .alasan-wrapper { display: none; }
-        /* (PERUBAHAN) Menambahkan class untuk syarat kustom */
         .syarat-kustom-hidden { display: none; }
         
-        /* Style untuk Preview Modal */
         #previewModal .modal-body {
             max-height: 70vh;
             overflow-y: auto;
@@ -42,14 +40,13 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-md-10 mx-auto">
-            <h2>Formulir Input: BNI Fleksi Pensiun Prapurna Take Over</h2>
+            <h2>Formulir Input: BNI Fleksi Pensiun Purna Reguler</h2>
             <p>Silakan isi data debitur dengan lengkap di bawah ini. Gunakan tab untuk berpindah kategori.</p>
             
             <form method="POST" action="/simpan" id="mainForm">
                 <input type="hidden" name="debitur_id" value="{{ debitur_id | default('', true) }}">
-                <input type="hidden" name="kategori" value="{{ kategori | default('prapurna_takeover', true) }}">
+                <input type="hidden" name="kategori" value="{{ kategori | default('purna_reguler', true) }}">
 
-                <!-- Navigasi Tab -->
                 <ul class="nav nav-tabs" id="formTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="pengajuan-slik-tab" data-bs-toggle="tab" data-bs-target="#pengajuan-slik" type="button" role="tab" aria-controls="pengajuan-slik" aria-selected="true">A. Pengajuan & SLIK</button>
@@ -58,7 +55,7 @@
                         <button class="nav-link" id="pemohon-tab" data-bs-toggle="tab" data-bs-target="#pemohon" type="button" role="tab" aria-controls="pemohon" aria-selected="false">B. Data Pemohon</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pekerjaan-tab" data-bs-toggle="tab" data-bs-target="#pekerjaan" type="button" role="tab" aria-controls="pekerjaan" aria-selected="false">C. Pekerjaan</button>
+                        <button class="nav-link" id="pekerjaan-tab" data-bs-toggle="tab" data-bs-target="#pekerjaan" type="button" role="tab" aria-controls="pekerjaan" aria-selected="false">C. Data Pensiun</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="verifikasi-tab" data-bs-toggle="tab" data-bs-target="#verifikasi" type="button" role="tab" aria-controls="verifikasi" aria-selected="false">D. Verifikasi</button>
@@ -68,12 +65,8 @@
                     </li>
                 </ul>
 
-                <!-- Konten Tab -->
                 <div class="tab-content" id="formTabsContent">
                     
-                    <!-- ============================================= -->
-                    <!-- TAB A: PENGAJUAN & SLIK (Take Over) -->
-                    <!-- ============================================= -->
                     <div class="tab-pane fade show active" id="pengajuan-slik" role="tabpanel" aria-labelledby="pengajuan-slik-tab">
                         <h4 class="mb-3">A.1. Pengajuan Kredit</h4>
                         <div class="row">
@@ -96,7 +89,6 @@
                             <label for="tgl_slik" class="form-label">Tanggal Cek SLIK</label>
                             <input type="date" class="form-control" id="tgl_slik" name="tgl_slik" value="{{ data.get('tgl_slik', '') }}">
                         </div>
-                        
                         <div class="mb-3 p-3 bg-light-subtle border rounded">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="toggle-fasilitas-nihil" name="fasilitas_nihil" value="ya" {% if data.get('fasilitas_nihil') == 'ya' %}checked{% endif %}>
@@ -105,7 +97,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div id="all-facilities-wrapper">
                             <p class="fw-bold">Data Fasilitas Aktif 1</p>
                             <div class="row">
@@ -138,14 +129,7 @@
                                     <input type="text" class="form-control" id="slik_bank_1_angsuran" name="slik_bank_1_angsuran" value="{{ data.get('slik_bank_1_angsuran', '') }}" data-type="rupiah">
                                 </div>
                             </div>
-                            <!-- Checkbox Alasan & Take Over -->
                             <div class="d-flex">
-                                <div class="form-check mt-1 me-4">
-                                    <input class="form-check-input" type="checkbox" id="slik_bank_1_takeover" name="slik_bank_1_takeover" value="ya" {% if data.get('slik_bank_1_takeover') == 'ya' %}checked{% endif %}>
-                                    <label class="form-check-label fw-bold text-danger" for="slik_bank_1_takeover">
-                                        Pelunasan/Take Over?
-                                    </label>
-                                </div>
                                 <div class="form-check mt-1">
                                     <input class="form-check-input toggle-alasan" type="checkbox" id="slik_bank_1_alasan_aktif" name="slik_bank_1_alasan_aktif" value="ya" data-target-alasan="#slik_bank_1_alasan" {% if data.get('slik_bank_1_alasan_aktif') == 'ya' %}checked{% endif %}>
                                     <label class="form-check-label" for="slik_bank_1_alasan_aktif">
@@ -168,7 +152,6 @@
                                     {% set angsuran_key = 'slik_bank_' ~ i ~ '_angsuran' %}
                                     {% set alasan_aktif_key = 'slik_bank_' ~ i ~ '_alasan_aktif' %}
                                     {% set alasan_key = 'slik_bank_' ~ i ~ '_alasan' %}
-                                    {% set takeover_key = 'slik_bank_' ~ i ~ '_takeover' %}
                                     
                                     <div id="slik-facility-{{ i }}" class="slik-facility-hidden" 
                                          {% if data.get(nama_key) %}style="display: block;"{% endif %}>
@@ -207,14 +190,7 @@
                                                 <input type="text" class="form-control" id="{{ angsuran_key }}" name="{{ angsuran_key }}" value="{{ data.get(angsuran_key, '') }}" data-type="rupiah">
                                             </div>
                                         </div>
-                                        <!-- Checkbox Alasan & Take Over -->
                                         <div class="d-flex">
-                                            <div class="form-check mt-1 me-4">
-                                                <input class="form-check-input" type="checkbox" id="{{ takeover_key }}" name="{{ takeover_key }}" value="ya" {% if data.get(takeover_key) == 'ya' %}checked{% endif %}>
-                                                <label class="form-check-label fw-bold text-danger" for="{{ takeover_key }}">
-                                                    Pelunasan/Take Over?
-                                                </label>
-                                            </div>
                                             <div class="form-check mt-1">
                                                 <input class="form-check-input toggle-alasan" type="checkbox" id="{{ alasan_aktif_key }}" name="{{ alasan_aktif_key }}" value="ya" data-target-alasan="#{{ alasan_key }}" {% if data.get(alasan_aktif_key) == 'ya' %}checked{% endif %}>
                                                 <label class="form-check-label" for="{{ alasan_aktif_key }}">
@@ -232,16 +208,14 @@
                             <div class="mt-2 mb-3">
                                 <button type="button" id="add-slik-facility" class="btn btn-sm btn-outline-primary">+ Tambah Fasilitas</button>
                             </div>
-                        </div> <!-- End all-facilities-wrapper -->
-
-                        <div class="form-check mt-4">
+                        </div> <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" id="toggle-mitigasi" name="mitigasi_aktif" value="ya" {% if data.get('mitigasi_aktif') == 'ya' %}checked{% endif %}>
                             <label class="form-check-label fw-bold" for="toggle-mitigasi">
                                 Mitigasi SLIK (Aktifkan jika ada)
                             </label>
                         </div>
                         <div id="mitigasi-fields" class="mitigasi-hidden mt-3">
-                            <div class="row">
+                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="mitigasi_slik_no_surat" class="form-label">No. Surat Mitigasi</label>
                                     <input type="text" class="form-control" id="mitigasi_slik_no_surat" name="mitigasi_slik_no_surat" value="{{ data.get('mitigasi_slik_no_surat', '') }}">
@@ -258,11 +232,7 @@
                         </div>
                     </div>
 
-                    <!-- ============================================= -->
-                    <!-- TAB B: DATA PEMOHON -->
-                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="pemohon" role="tabpanel" aria-labelledby="pemohon-tab">
-                        <!-- Konten identik dengan Prapurna Reguler -->
                         <div class="mb-3">
                             <label for="nama_pemohon" class="form-label">Nama Pemohon</label>
                             <input type="text" class="form-control" id="nama_pemohon" name="nama_pemohon" value="{{ data.get('nama_pemohon', '') }}" required>
@@ -320,81 +290,40 @@
                         </div>
                     </div>
 
-                    <!-- ============================================= -->
-                    <!-- TAB C: PEKERJAAN -->
-                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="pekerjaan" role="tabpanel" aria-labelledby="pekerjaan-tab">
-                        <!-- Konten identik dengan Prapurna Reguler -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="jenis_pekerjaan_pemohon" class="form-label">Jenis Pekerjaan</label>
-                                <input type="text" class="form-control" id="jenis_pekerjaan_pemohon" name="jenis_pekerjaan_pemohon" value="{{ data.get('jenis_pekerjaan_pemohon', '') }}">
+                                <label for="jenis_pekerjaan_pemohon" class="form-label">Jenis Pekerjaan (Pensiunan)</label>
+                                <input type="text" class="form-control" id="jenis_pekerjaan_pemohon" name="jenis_pekerjaan_pemohon" value="{{ data.get('jenis_pekerjaan_pemohon', 'PNS') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="nama_instansi_pemohon" class="form-label">Nama Instansi</label>
+                                <label for="nama_instansi_pemohon" class="form-label">Instansi Terakhir</label>
                                 <input type="text" class="form-control" id="nama_instansi_pemohon" name="nama_instansi_pemohon" value="{{ data.get('nama_instansi_pemohon', '') }}" required>
                             </div>
                         </div>
+                        
+                        <hr class="my-4">
+                        <h4 class="mb-3">Data SK Pensiun</h4>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="tgl_mulai_kerja" class="form-label">Tgl Mulai Kerja</label>
-                                <input type="date" class="form-control" id="tgl_mulai_kerja" name="tgl_mulai_kerja" value="{{ data.get('tgl_mulai_kerja', '') }}" required>
+                                <label for="no_sk_pensiun" class="form-label">No. SK Pensiun</label>
+                                <input type="text" class="form-control" id="no_sk_pensiun" name="no_sk_pensiun" value="{{ data.get('no_sk_pensiun', '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="lama_kerja_tahun" class="form-label">Lama Kerja (Tahun)</label>
-                                <input type="number" class="form-control" id="lama_kerja_tahun" name="lama_kerja_tahun" value="{{ data.get('lama_kerja_tahun', '') }}" min="0" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="no_sk_cpns" class="form-label">No. SK CPNS</label>
-                                <input type="text" class="form-control" id="no_sk_cpns" name="no_sk_cpns" value="{{ data.get('no_sk_cpns', '') }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tgl_sk_cpns" class="form-label">Tgl SK CPNS</label>
-                                <input type="date" class="form-control" id="tgl_sk_cpns" name="tgl_sk_cpns" value="{{ data.get('tgl_sk_cpns', '') }}">
+                                <label for="tgl_sk_pensiun" class="form-label">Tgl. SK Pensiun</label>
+                                <input type="date" class="form-control" id="tgl_sk_pensiun" name="tgl_sk_pensiun" value="{{ data.get('tgl_sk_pensiun', '') }}">
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="golongan_saat_ini" class="form-label">Golongan Saat Ini</label>
-                                <input type="text" class="form-control" id="golongan_saat_ini" name="golongan_saat_ini" value="{{ data.get('golongan_saat_ini', '') }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="no_sk_golongan" class="form-label">No. SK Golongan</label>
-                                <input type="text" class="form-control" id="no_sk_golongan" name="no_sk_golongan" value="{{ data.get('no_sk_golongan', '') }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="tgl_sk_golongan" class="form-label">Tgl SK Golongan</label>
-                                <input type="date" class="form-control" id="tgl_sk_golongan" name="tgl_sk_golongan" value="{{ data.get('tgl_sk_golongan', '') }}">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="jabatan_pemohon" class="form-label">Jabatan</label>
-                            <input type="text" class="form-control" id="jabatan_pemohon" name="jabatan_pemohon" value="{{ data.get('jabatan_pemohon', '') }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="alamat_kantor_pemohon" class="form-label">Alamat Kantor</label>
-                            <textarea class="form-control" id="alamat_kantor_pemohon" name="alamat_kantor_pemohon" rows="2">{{ data.get('alamat_kantor_pemohon', '') }}</textarea>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="nip_pemohon" class="form-label">NIP Pemohon</label>
-                                <input type="text" class="form-control" id="nip_pemohon" name="nip_pemohon" value="{{ data.get('nip_pemohon', '') }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tgl_pensiun_pemohon" class="form-label">Tgl Pensiun (BUP)</label>
-                                <input type="date" class="form-control" id="tgl_pensiun_pemohon" name="tgl_pensiun_pemohon" value="{{ data.get('tgl_pensiun_pemohon', '') }}" required>
+                                <label for="tgl_pensiun_tmt" class="form-label">TMT Pensiun</label>
+                                <input type="date" class="form-control" id="tgl_pensiun_tmt" name="tgl_pensiun_tmt" value="{{ data.get('tgl_pensiun_tmt', '') }}" required>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ============================================= -->
-                    <!-- TAB D: VERIFIKASI -->
-                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="verifikasi" role="tabpanel" aria-labelledby="verifikasi-tab">
-                        <!-- Konten identik dengan Prapurna Reguler -->
-                        <h4 class="mb-3">D.1. Verifikasi Penghasilan & Taspen</h4>
+                        <h4 class="mb-3">D.1. Verifikasi Penghasilan Pensiun</h4>
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="payroll_bank" class="form-label">Payroll di Bank</label>
@@ -405,81 +334,23 @@
                                 <input type="text" class="form-control" id="payroll_no_rek" name="payroll_no_rek" value="{{ data.get('payroll_no_rek', '') }}">
                             </div>
                         </div>
-                        <p class="fw-bold mt-3">Verifikasi Gaji 3 Bulan Terakhir</p>
+                        <p class="fw-bold mt-3">Verifikasi Gaji Pensiun Diterima</p>
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Bulan 1</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_1_nama" name="gaji_bulan_1_nama" placeholder="Nama Bulan (cth: Jan 2024)" value="{{ data.get('gaji_bulan_1_nama', '') }}">
+                                <label class="form-label">Bulan</label>
+                                <input type="text" class="form-control mb-1" id="pensiun_bulan_nama" name="pensiun_bulan_nama" placeholder="Nama Bulan (cth: Sep 2025)" value="{{ data.get('pensiun_bulan_nama', '') }}">
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Jumlah (Rp)</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_1_jumlah" name="gaji_bulan_1_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_1_jumlah', '') }}" required data-type="rupiah">
+                                <label class="form-label">Jumlah Pensiun Diterima (Rp)</label>
+                                <input type="text" class="form-control mb-1" id="pensiun_bulan_jumlah" name="pensiun_bulan_jumlah" placeholder="Jumlah Pensiun" value="{{ data.get('pensiun_bulan_jumlah', '') }}" required data-type="rupiah">
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Bulan 2</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_2_nama" name="gaji_bulan_2_nama" placeholder="Nama Bulan (cth: Feb 2024)" value="{{ data.get('gaji_bulan_2_nama', '') }}">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Jumlah (Rp)</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_2_jumlah" name="gaji_bulan_2_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_2_jumlah', '') }}" required data-type="rupiah">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Bulan 3</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_3_nama" name="gaji_bulan_3_nama" placeholder="Nama Bulan (cth: Mar 2024)" value="{{ data.get('gaji_bulan_3_nama', '') }}">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Jumlah (Rp)</label>
-                                <input type="text" class="form-control mb-1" id="gaji_bulan_3_jumlah" name="gaji_bulan_3_jumlah" placeholder="Jumlah Gaji" value="{{ data.get('gaji_bulan_3_jumlah', '') }}" required data-type="rupiah">
-                            </div>
-                        </div>
-                        <p class="fw-bold mt-3">Verifikasi Taspen</p>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="estimasi_hak_pensiun" class="form-label">Estimasi Hak Pensiun (Rp)</label>
-                                <input type="text" class="form-control" id="estimasi_hak_pensiun" name="estimasi_hak_pensiun" value="{{ data.get('estimasi_hak_pensiun', '') }}" data-type="rupiah">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="taspen_tht" class="form-label">THT (Rp)</label>
-                                <input type="text" class="form-control" id="taspen_tht" name="taspen_tht" value="{{ data.get('taspen_tht', '') }}" data-type="rupiah">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="taspen_hak_pensiun" class="form-label">Hak Pensiun (Rp)</label>
-                                <input type="text" class="form-control" id="taspen_hak_pensiun" name="taspen_hak_pensiun" value="{{ data.get('taspen_hak_pensiun', '') }}" data-type="rupiah">
-                            </div>
-                        </div>
+                        
                         <hr class="my-4">
-                        <h4 class="mb-3">D.2. Verifikasi Pihak Ketiga (Call Memo)</h4>
+                        <h4 class="mb-3">D.2. Call Memo Kerabat</h4>
                         <div class="mb-3">
                             <label for="tgl_call_memo" class="form-label">Tanggal Telepon</label>
                             <input type="date" class="form-control" id="tgl_call_memo" name="tgl_call_memo" value="{{ data.get('tgl_call_memo', '') }}">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="nama_bendahara" class="form-label">Nama Bendahara</label>
-                                <input type="text" class="form-control" id="nama_bendahara" name="nama_bendahara" value="{{ data.get('nama_bendahara', '') }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="no_telp_bendahara" class="form-label">No. Telp Bendahara</label>
-                                <input type="tel" class="form-control" id="no_telp_bendahara" name="no_telp_bendahara" value="{{ data.get('no_telp_bendahara', '') }}">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="info_gaji_bendahara" class="form-label">Info Gaji dari Bendahara</label>
-                            <input type="text" class="form-control" id="info_gaji_bendahara" name="info_gaji_bendahara" value="{{ data.get('info_gaji_bendahara', '') }}" data-type="rupiah">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="nama_rekan_kerja" class="form-label">Nama Rekan Kerja</label>
-                                <input type="text" class="form-control" id="nama_rekan_kerja" name="nama_rekan_kerja" value="{{ data.get('nama_rekan_kerja', '') }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="no_telp_rekan_kerja" class="form-label">No. Telp Rekan Kerja</label>
-                                <input type="tel" class="form-control" id="no_telp_rekan_kerja" name="no_telp_rekan_kerja" value="{{ data.get('no_telp_rekan_kerja', '') }}">
-                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
@@ -497,11 +368,7 @@
                         </div>
                     </div>
 
-                    <!-- ============================================= -->
-                    <!-- TAB E: USULAN KREDIT (PERUBAHAN DI SINI) -->
-                    <!-- ============================================= -->
                     <div class="tab-pane fade" id="usulan" role="tabpanel" aria-labelledby="usulan-tab">
-                        <!-- Konten identik dengan Prapurna Reguler, termasuk Biaya Admin -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="dsr_pemohon" class="form-label">DSR Pemohon (%)</label>
@@ -532,7 +399,7 @@
                                 <input type="text" class="form-control" id="usulan_angsuran" name="usulan_angsuran" value="{{ data.get('usulan_angsuran', '') }}" readonly data-type="rupiah">
                             </div>
                         </div>
-                        <div class="row">
+                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="biaya_provisi_persen" class="form-label">Biaya Provisi (%)</label>
                                 <input type="number" step="0.01" class="form-control" id="biaya_provisi_persen" name="biaya_provisi_persen" value="{{ data.get('biaya_provisi_persen', '') }}" min="0">
@@ -570,42 +437,12 @@
                             <label for="biaya_psjt_persen" class="form-label">Biaya PSJT (%)</label>
                             <input type="number" step="0.01" class="form-control" id="biaya_psjt_persen" name="biaya_psjt_persen" value="{{ data.get('biaya_psjt_persen', '') }}" min="0">
                         </div>
+                        
                         <hr class="my-4">
                         <h4 class="mb-3">Blokir Angsuran</h4>
-                        <!-- ... (Konten Blokir Angsuran tidak berubah) ... -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_total" class="form-label">Total (kali)</label>
-                                <input type="number" class="form-control" id="blokir_angsuran_total" name="blokir_angsuran_total" value="{{ data.get('blokir_angsuran_total', '') }}" min="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_total_terbilang" class="form-label">Terbilang</label>
-                                <input type="text" class="form-control" id="blokir_angsuran_total_terbilang" name="blokir_angsuran_total_terbilang" value="{{ data.get('blokir_angsuran_total_terbilang', '') }}" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_prapurna" class="form-label">Prapurna (kali)</label>
-                                <input type="number" class="form-control" id="blokir_angsuran_prapurna" name="blokir_angsuran_prapurna" value="{{ data.get('blokir_angsuran_prapurna', '') }}" min="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_prapurna_terbilang" class="form-label">Terbilang</terbilang>
-                                <input type="text" class="form-control" id="blokir_angsuran_prapurna_terbilang" name="blokir_angsuran_prapurna_terbilang" value="{{ data.get('blokir_angsuran_prapurna_terbilang', '') }}" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_pindah_gaji" class="form-label">Pindah Gaji (kali)</label>
-                                <input type="number" class="form-control" id="blokir_angsuran_pindah_gaji" name="blokir_angsuran_pindah_gaji" value="{{ data.get('blokir_angsuran_pindah_gaji', '') }}" min="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_pindah_gaji_terbilang" class="form-label">Terbilang</label>
-                                <input type="text" class="form-control" id="blokir_angsuran_pindah_gaji_terbilang" name="blokir_angsuran_pindah_gaji_terbilang" value="{{ data.get('blokir_angsuran_pindah_gaji_terbilang', '') }}" readonly>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="blokir_angsuran_lunas" class="form-label">Wajib (kali)</label>
+                                <label for="blokir_angsuran_lunas" class="form-label">Jumlah Blokir Angsuran (kali)</label>
                                 <input type="number" class="form-control" id="blokir_angsuran_lunas" name="blokir_angsuran_lunas" value="{{ data.get('blokir_angsuran_lunas', '') }}" min="0">
                             </div>
                             <div class="col-md-6 mb-3">
@@ -614,7 +451,6 @@
                             </div>
                         </div>
                         
-                        <!-- (PERUBAHAN) Bagian Syarat Tambahan Kustom -->
                         <hr class="my-4">
                         <h4 class="mb-3">Syarat Tambahan Kustom</h4>
                         <p>Tambahkan syarat kustom yang akan muncul di dokumen. Pilih lokasinya (Penandatanganan atau Pencairan).</p>
@@ -654,7 +490,6 @@
                     </div>
                 </div>
 
-                <!-- Tombol Aksi -->
                 <div class="mt-4 d-flex justify-content-between align-items-center">
                     <div>
                         <button type="submit" class="btn btn-primary btn-lg">
@@ -675,9 +510,6 @@
 </div>
 
 
-<!-- =================================================================== -->
-<!-- MODAL PREVIEW (Take Over) -->
-<!-- =================================================================== -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl"> 
         <div class="modal-content">
@@ -689,7 +521,6 @@
                 <p>Mohon periksa kembali data di bawah ini. Jika sudah benar, klik "Ya, Simpan Data".</p>
                 <hr>
 
-                <!-- A. PENGAJUAN & SLIK -->
                 <h4 class="mb-3 mt-4">A.1. Pengajuan Kredit</h4>
                 <div class="row"><div class="col-md-4">Plafon Dimohon (Rp):</div><div class="col-md-8"><span id="preview_plafon_kredit_dimohon"></span></div></div>
                 <div class="row"><div class="col-md-4">Jangka Waktu (Bulan):</div><div class="col-md-8"><span id="preview_jangka_waktu_dimohon_bulan"></span></div></div>
@@ -707,7 +538,6 @@
                             Plafon: <span id="preview_slik_bank_1_maks"></span>,
                             O/S: <span id="preview_slik_bank_1_outs"></span>,
                             Kol: <span id="preview_slik_bank_1_coll"></span>
-                            <!-- (PERUBAHAN) Tambah preview Take Over -->
                             <span class="text-danger fw-bold" id="preview_slik_bank_1_takeover"></span>
                             <br>
                             <strong>Angsuran: <span id="preview_slik_bank_1_angsuran"></span></strong>
@@ -727,7 +557,6 @@
                                 Plafon: <span id="preview_slik_bank_{{ i }}_maks"></span>,
                                 O/S: <span id="preview_slik_bank_{{ i }}_outs"></span>,
                                 Kol: <span id="preview_slik_bank_{{ i }}_coll"></span>
-                                <!-- (PERUBAHAN) Tambah preview Take Over -->
                                 <span class="text-danger fw-bold" id="preview_slik_bank_{{ i }}_takeover"></span>
                                 <br>
                                 <strong>Angsuran: <span id="preview_slik_bank_{{ i }}_angsuran"></span></strong>
@@ -764,39 +593,25 @@
                 <div class="row"><div class="col-md-4">Tgl Terbit KTP:</div><div class="col-md-8"><span id="preview_tgl_terbit_ktp"></span></div></div>
                 <div class="row"><div class="col-md-4">Status Perkawinan:</div><div class="col-md-8"><span id="preview_status_perkawinan_pemohon"></span></div></div>
                 
-                <h4 class="mb-3 mt-4">C. Pekerjaan & Instansi</h4>
+                <h4 class="mb-3 mt-4">C. Data Pensiun</h4>
                 <div class="row"><div class="col-md-4">Jenis Pekerjaan:</div><div class="col-md-8"><span id="preview_jenis_pekerjaan_pemohon"></span></div></div>
-                <div class="row"><div class="col-md-4">Nama Instansi:</div><div class="col-md-8"><span id="preview_nama_instansi_pemohon"></span></div></div>
-                <div class="row"><div class="col-md-4">Tgl Mulai Kerja:</div><div class="col-md-8"><span id="preview_tgl_mulai_kerja"></span></div></div>
-                <div class="row"><div class="col-md-4">Lama Kerja (Tahun):</div><div class="col-md-8"><span id="preview_lama_kerja_tahun"></span></div></div>
-                <div class="row"><div class="col-md-4">No. SK CPNS:</div><div class="col-md-8"><span id="preview_no_sk_cpns"></span></div></div>
-                <div class="row"><div class="col-md-4">Tgl SK CPNS:</div><div class="col-md-8"><span id="preview_tgl_sk_cpns"></span></div></div>
-                <div class="row"><div class="col-md-4">Golongan Saat Ini:</div><div class="col-md-8"><span id="preview_golongan_saat_ini"></span></div></div>
-                <div class="row"><div class="col-md-4">No. SK Golongan:</div><div class="col-md-8"><span id="preview_no_sk_golongan"></span></div></div>
-                <div class="row"><div class="col-md-4">Tgl SK Golongan:</div><div class="col-md-8"><span id="preview_tgl_sk_golongan"></span></div></div>
-                <div class="row"><div class="col-md-4">Jabatan:</div><div class="col-md-8"><span id="preview_jabatan_pemohon"></span></div></div>
-                <div class="row"><div class="col-md-4">Alamat Kantor:</div><div class="col-md-8"><span id="preview_alamat_kantor_pemohon" style="white-space: pre-wrap;"></span></div></div>
+                <div class="row"><div class="col-md-4">Instansi Terakhir:</div><div class="col-md-8"><span id="preview_nama_instansi_pemohon"></span></div></div>
+                <div class="row"><div class="col-md-4">Jabatan Terakhir:</div><div class="col-md-8"><span id="preview_jabatan_pemohon"></span></div></div>
                 <div class="row"><div class="col-md-4">NIP Pemohon:</div><div class="col-md-8"><span id="preview_nip_pemohon"></span></div></div>
-                <div class="row"><div class="col-md-4">Tgl Pensiun (BUP):</div><div class="col-md-8"><span id="preview_tgl_pensiun_pemohon"></span></div></div>
+                <div class="row"><div class="col-md-4">No. SK Pensiun:</div><div class="col-md-8"><span id="preview_no_sk_pensiun"></span></div></div>
+                <div class="row"><div class="col-md-4">Tgl. SK Pensiun:</div><div class="col-md-8"><span id="preview_tgl_sk_pensiun"></span></div></div>
+                <div class="row"><div class="col-md-4">TMT Pensiun:</div><div class="col-md-8"><span id="preview_tgl_pensiun_tmt"></span></div></div>
                 
                 <h4 class="mb-3 mt-4">D. Verifikasi</h4>
                 <div class="row"><div class="col-md-4">Payroll di Bank:</div><div class="col-md-8"><span id="preview_payroll_bank"></span></div></div>
                 <div class="row"><div class="col-md-4">No. Rekening Payroll:</div><div class="col-md-8"><span id="preview_payroll_no_rek"></span></div></div>
-                <p class="fw-bold mb-1 mt-3">Gaji 3 Bulan Terakhir:</p>
-                <div class="row"><div class="col-md-4"><span id="preview_gaji_bulan_1_nama"></span>:</div><div class="col-md-8"><span id="preview_gaji_bulan_1_jumlah"></span></div></div>
-                <div class="row"><div class="col-md-4"><span id="preview_gaji_bulan_2_nama"></span>:</div><div class="col-md-8"><span id="preview_gaji_bulan_2_jumlah"></span></div></div>
-                <div class="row"><div class="col-md-4"><span id="preview_gaji_bulan_3_nama"></span>:</div><div class="col-md-8"><span id="preview_gaji_bulan_3_jumlah"></span></div></div>
-                <p class="fw-bold mb-1 mt-3">Verifikasi Taspen:</p>
-                <div class="row"><div class="col-md-4">Estimasi Hak Pensiun (Rp):</div><div class="col-md-8"><span id="preview_estimasi_hak_pensiun"></span></div></div>
-                <div class="row"><div class="col-md-4">THT (Rp):</div><div class="col-md-8"><span id="preview_taspen_tht"></span></div></div>
-                <div class="row"><div class="col-md-4">Hak Pensiun (Rp):</div><div class="col-md-8"><span id="preview_taspen_hak_pensiun"></span></div></div>
+                <p class="fw-bold mb-1 mt-3">Gaji Pensiun Diterima:</p>
+                <div class="row"><div class="col-md-4"><span id="preview_pensiun_bulan_1_nama"></span>:</div><div class="col-md-8"><span id="preview_pensiun_bulan_1_jumlah"></span></div></div>
+                <div class="row"><div class="col-md-4"><span id="preview_pensiun_bulan_2_nama"></span>:</div><div class="col-md-8"><span id="preview_pensiun_bulan_2_jumlah"></span></div></div>
+                <div class="row"><div class="col-md-4"><span id="preview_pensiun_bulan_3_nama"></span>:</div><div class="col-md-8"><span id="preview_pensiun_bulan_3_jumlah"></span></div></div>
+
                 <p class="fw-bold mb-1 mt-3">Call Memo:</p>
                 <div class="row"><div class="col-md-4">Tanggal Telepon:</div><div class="col-md-8"><span id="preview_tgl_call_memo"></span></div></div>
-                <div class="row"><div class="col-md-4">Nama Bendahara:</div><div class="col-md-8"><span id="preview_nama_bendahara"></span></div></div>
-                <div class="row"><div class="col-md-4">No. Telp Bendahara:</div><div class="col-md-8"><span id="preview_no_telp_bendahara"></span></div></div>
-                <div class="row"><div class="col-md-4">Info Gaji dari Bendahara:</div><div class="col-md-8"><span id="preview_info_gaji_bendahara"></span></div></div>
-                <div class="row"><div class="col-md-4">Nama Rekan Kerja:</div><div class="col-md-8"><span id="preview_nama_rekan_kerja"></span></div></div>
-                <div class="row"><div class="col-md-4">No. Telp Rekan Kerja:</div><div class="col-md-8"><span id="preview_no_telp_rekan_kerja"></span></div></div>
                 <div class="row"><div class="col-md-4">Nama Kerabat:</div><div class="col-md-8"><span id="preview_nama_kerabat"></span></div></div>
                 <div class="row"><div class="col-md-4">Hubungan:</div><div class="col-md-8"><span id="preview_hubungan_kerabat"></span></div></div>
                 <div class="row"><div class="col-md-4">No. Telp Kerabat:</div><div class="col-md-8"><span id="preview_no_telp_kerabat"></span></div></div>
@@ -816,24 +631,18 @@
                 <div class="row"><div class="col-md-4">Biaya PSJT (%):</div><div class="col-md-8"><span id="preview_biaya_psjt_persen"></span></div></div>
                 
                 <h5 class="mb-3 mt-4">Blokir Angsuran</h5>
-                <div class="row"><div class="col-md-4">Total (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_total"></span> (<span id="preview_blokir_angsuran_total_terbilang"></span>)</div></div>
-                <div class="row"><div class="col-md-4">Prapurna (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_prapurna"></span> (<span id="preview_blokir_angsuran_prapurna_terbilang"></span>)</div></div>
-                <div class="row"><div class="col-md-4">Pindah Gaji (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_pindah_gaji"></span> (<span id="preview_blokir_angsuran_pindah_gaji_terbilang"></span>)</div></div>
-                <div class="row"><div class="col-md-4">Wajib (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_lunas"></span> (<span id="preview_blokir_angsuran_lunas_terbilang"></span>)</div></div>
+                <div class="row"><div class="col-md-4">Jumlah Blokir Angsuran (kali):</div><div class="col-md-8"><span id="preview_blokir_angsuran_lunas"></span> (<span id="preview_blokir_angsuran_lunas_terbilang"></span>)</div></div>
 
-                <!-- (PERUBAHAN) Preview Syarat Kustom -->
                 <h5 class="mb-3 mt-4">Syarat Tambahan Kustom</h5>
                 <div id="preview-syarat-kustom-penandatanganan" class="slik-facility-hidden">
                     <p class="fw-bold mb-1">Syarat Penandatanganan Tambahan:</p>
                     <ul id="preview-list-penandatanganan">
-                        <!-- Diisi oleh JS -->
-                    </ul>
+                        </ul>
                 </div>
                 <div id="preview-syarat-kustom-pencairan" class="slik-facility-hidden">
                     <p class="fw-bold mb-1 mt-3">Syarat Pencairan Tambahan:</p>
                     <ul id="preview-list-pencairan">
-                        <!-- Diisi oleh JS -->
-                    </ul>
+                        </ul>
                 </div>
                 <div id="preview-syarat-kustom-none" class="slik-facility-hidden">
                     <p class="text-body-secondary">Tidak ada syarat tambahan kustom.</p>
@@ -847,55 +656,31 @@
         </div>
     </div>
 </div>
-<!-- =================================================================== -->
-<!-- AKHIR DARI MODAL PREVIEW                                          -->
-<!-- =================================================================== -->
-
-
-<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ============================================= -->
-<!-- SCRIPT KALKULASI OTOMATIS (PERUBAHAN) -->
-<!-- ============================================= -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        // --- (PERBAIKAN) Helper Functions untuk Rupiah ---
-        function unformatRupiah(value) { 
-            return value.replace(/[^0-9]/g, ''); 
-        }
-
+        // --- Helper Functions untuk Rupiah ---
+        function unformatRupiah(value) { return value.replace(/[^0-9]/g, ''); }
         function formatRupiah(value) {
-            let number_string = value.replace(/[^0-9]/g, '');
-            // Hapus nol di depan
-            number_string = number_string.replace(/^0+/, '');
-
-            if (number_string === "") {
-                return "";
+            let number_string = value.replace(/[^0-9]/g, ''),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/g);
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
             }
-
-            // (PERBAIKAN) Menggunakan Regex yang lebih stabil
-            return number_string.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            return split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
         }
-
         function setupRupiahInput(inputId) {
             const input = document.getElementById(inputId);
             if (input) {
                 input.value = formatRupiah(input.value);
                 input.addEventListener('input', function(e) {
-                    // Simpan posisi kursor
-                    let start = e.target.selectionStart;
-                    let end = e.target.selectionEnd;
-                    let originalLength = e.target.value.length;
-
-                    // Format nilai
-                    e.target.value = formatRupiah(e.target.value);
-                    
-                    // Kembalikan posisi kursor
-                    let newLength = e.target.value.length;
-                    let diff = newLength - originalLength;
-                    e.target.setSelectionRange(start + diff, end + diff);
+                    input.value = formatRupiah(e.target.value);
                 });
             }
         }
@@ -904,8 +689,6 @@
         const mainForm = document.getElementById('mainForm');
         const tglLahirInput = document.getElementById('tgl_lahir_pemohon');
         const usiaInput = document.getElementById('usia_pemohon');
-        const tglMulaiKerjaInput = document.getElementById('tgl_mulai_kerja');
-        const lamaKerjaInput = document.getElementById('lama_kerja_tahun');
         const plafonDimohonInput = document.getElementById('plafon_kredit_dimohon');
         const jangkaWaktuDimohonInput = document.getElementById('jangka_waktu_dimohon_bulan');
         const plafonUsulanInput = document.getElementById('usulan_plafon_kredit');
@@ -916,25 +699,26 @@
         const provisiNominalInput = document.getElementById('biaya_provisi_nominal');
         const tataLaksanaPersenInput = document.getElementById('biaya_tata_laksana_persen');
         const tataLaksanaNominalInput = document.getElementById('biaya_tata_laksana_nominal');
-        const estimasiHakPensiunInput = document.getElementById('estimasi_hak_pensiun');
+        
+        // (PERUBAHAN) Referensi DSR ke field baru (Bulan ke-3)
+        const pensiunBulan3JumlahInput = document.getElementById('pensiun_bulan_3_jumlah');
         const dsrPemohonInput = document.getElementById('dsr_pemohon');
         
         const biayaAdminInput = document.getElementById('biaya_administrasi');
         const bebasBiayaAdminCheckbox = document.getElementById('bebas_biaya_administrasi');
 
+        // (PERUBAHAN) Disederhanakan
         const pairsTerbilang = [
-            { input: document.getElementById('blokir_angsuran_total'), output: document.getElementById('blokir_angsuran_total_terbilang') },
-            { input: document.getElementById('blokir_angsuran_prapurna'), output: document.getElementById('blokir_angsuran_prapurna_terbilang') },
-            { input: document.getElementById('blokir_angsuran_pindah_gaji'), output: document.getElementById('blokir_angsuran_pindah_gaji_terbilang') },
             { input: document.getElementById('blokir_angsuran_lunas'), output: document.getElementById('blokir_angsuran_lunas_terbilang') }
         ];
 
+        // (PERUBAHAN) Disesuaikan dengan 3 bulan pensiun
         const nominalInputIDs = [
             'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran',
-            'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
-            'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
+            'pensiun_bulan_1_jumlah', // <-- Field Purna 1
+            'pensiun_bulan_2_jumlah', // <-- Field Purna 2
+            'pensiun_bulan_3_jumlah', // <-- Field Purna 3 (Acuan DSR)
             'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi', 
-            'info_gaji_bendahara', 
             'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran',
             'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran',
             'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran',
@@ -989,21 +773,7 @@
                 usiaInput.value = '';
             }
         }
-        function hitungLamaKerja() {
-            if (!tglMulaiKerjaInput.value) { 
-                if(lamaKerjaInput) lamaKerjaInput.value = ''; 
-                return; 
-            }
-            try {
-                const tglMulai = new Date(tglMulaiKerjaInput.value);
-                const hariIni = new Date();
-                const selisihMs = hariIni.getTime() - tglMulai.getTime();
-                const selisihTahun = selisihMs / (1000 * 60 * 60 * 24 * 365.25);
-                lamaKerjaInput.value = Math.floor(selisihTahun);
-            } catch (e) {
-                lamaKerjaInput.value = '';
-            }
-        }
+        
         function hitungBiaya() {
             const plafon = parseFloat(unformatRupiah(plafonUsulanInput.value)) || 0;
             const provisiPersen = parseFloat(provisiPersenInput.value) || 0;
@@ -1064,9 +834,9 @@
             calculateDSR(); 
         }
 
-        // Kalkulasi DSR untuk Prapurna
+        // (PERUBAHAN) Kalkulasi DSR untuk Purna (Menggunakan Bulan ke-3)
         function calculateDSR() {
-            const penghasilan = parseFloat(unformatRupiah(estimasiHakPensiunInput.value)) || 0;
+            const penghasilan = parseFloat(unformatRupiah(pensiunBulan3JumlahInput.value)) || 0;
             const angsuranUsulan = parseFloat(unformatRupiah(angsuranUsulanInput.value)) || 0;
 
             let totalAngsuranEksisting = 0;
@@ -1089,6 +859,7 @@
         }
 
         // --- (Fungsi Toggle) ---
+        // (PERBAIKAN) Logika 'else' diubah untuk meng-enable SEMUA input
         function handleNihilToggle() {
             if (toggleNihil.checked) {
                 allFacilitiesWrapper.style.display = 'none';
@@ -1096,10 +867,13 @@
                 addSlikButton.disabled = true;
             } else {
                 allFacilitiesWrapper.style.display = 'block';
+                // (PERBAIKAN DI SINI)
+                // Aktifkan semua input, termasuk .toggle-alasan
                 allFacilitiesWrapper.querySelectorAll('input').forEach(input => {
                     input.disabled = false;
                 });
                 addSlikButton.disabled = false;
+                // Fungsi ini akan menangani disable/enable pada textarea
                 initAlasanCheckboxes(); 
             }
             calculateDSR(); 
@@ -1239,7 +1013,6 @@
 
         // --- 3. EVENT LISTENERS ---
         if (tglLahirInput) tglLahirInput.addEventListener('change', hitungUsia);
-        if (tglMulaiKerjaInput) tglMulaiKerjaInput.addEventListener('change', hitungLamaKerja);
         if (provisiPersenInput) provisiPersenInput.addEventListener('input', hitungBiaya);
         if (tataLaksanaPersenInput) tataLaksanaPersenInput.addEventListener('input', hitungBiaya);
         if (plafonDimohonInput) plafonDimohonInput.addEventListener('input', syncPengajuanKeUsulan);
@@ -1250,7 +1023,9 @@
             bebasBiayaAdminCheckbox.addEventListener('change', handleBebasAdminToggle);
         }
 
-        if (estimasiHakPensiunInput) estimasiHakPensiunInput.addEventListener('input', calculateDSR);
+        // (PERUBAHAN) Listener DSR ke field Purna (Bulan ke-3)
+        if (pensiunBulan3JumlahInput) pensiunBulan3JumlahInput.addEventListener('input', calculateDSR);
+        
         for (let i = 1; i <= maxFacilities; i++) {
             const angsuranInput = document.getElementById('slik_bank_' + i + '_angsuran');
             if (angsuranInput) {
@@ -1392,7 +1167,6 @@
             
             nominalInputIDs.forEach(setupRupiahInput);
             hitungUsia();
-            hitungLamaKerja(); 
             syncPengajuanKeUsulan(); 
             calculateDSR(); 
             
@@ -1437,7 +1211,7 @@
                     break;
                 }
             }
-            if (allSyaratVisible) addSlikButton.style.display = 'none';
+            if (allSyaratVisible) addSyaratButton.style.display = 'none';
             
         }, 10); 
         
