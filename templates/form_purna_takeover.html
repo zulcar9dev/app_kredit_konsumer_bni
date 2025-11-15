@@ -12,6 +12,9 @@
         .alasan-wrapper { display: none; }
         .syarat-kustom-hidden { display: none; }
         
+        /* (PERUBAHAN) Sembunyikan field domisili */
+        .domisili-hidden { display: none; }
+
         #previewModal .modal-body {
             max-height: 70vh;
             overflow-y: auto;
@@ -255,9 +258,22 @@
                             <label for="no_telp_pemohon" class="form-label">No. Telepon/HP</label>
                             <input type="tel" class="form-control" id="no_telp_pemohon" name="no_telp_pemohon" value="{{ data.get('no_telp_pemohon', '') }}" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="alamat_ktp_pemohon" class="form-label">Alamat Sesuai KTP</label>
                             <textarea class="form-control" id="alamat_ktp_pemohon" name="alamat_ktp_pemohon" rows="2" required>{{ data.get('alamat_ktp_pemohon', '') }}</textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="toggle-domisili" name="domisili_berbeda" value="ya" {% if data.get('domisili_berbeda') == 'ya' %}checked{% endif %}>
+                            <label class="form-check-label" for="toggle-domisili">
+                                Alamat Domisili berbeda dengan Alamat KTP
+                            </label>
+                        </div>
+                        <div id="domisili-fields" class="domisili-hidden">
+                            <div class="mb-3">
+                                <label for="alamat_domisili_pemohon" class="form-label">Alamat Domisili</label>
+                                <textarea class="form-control" id="alamat_domisili_pemohon" name="alamat_domisili_pemohon" rows="2">{{ data.get('alamat_domisili_pemohon', '') }}</textarea>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
@@ -314,7 +330,8 @@
                                 <label for="nama_instansi_pemohon" class="form-label">Instansi Terakhir</label>
                                 <input type="text" class="form-control" id="nama_instansi_pemohon" name="nama_instansi_pemohon" value="{{ data.get('nama_instansi_pemohon', '') }}" required>
                             </div>
-                        </div>                        
+                        </div>
+                        
                         <hr class="my-4">
                         <h4 class="mb-3">Data SK Pensiun</h4>
                         <div class="row">
@@ -638,6 +655,12 @@
                 <div class="row"><div class="col-md-4">Nama Pemohon:</div><div class="col-md-8"><span id="preview_nama_pemohon"></span></div></div>
                 <div class="row"><div class="col-md-4">No. Telepon/HP:</div><div class="col-md-8"><span id="preview_no_telp_pemohon"></span></div></div>
                 <div class="row"><div class="col-md-4">Alamat Sesuai KTP:</div><div class="col-md-8"><span id="preview_alamat_ktp_pemohon" style="white-space: pre-wrap;"></span></div></div>
+                
+                <div class="row domisili-hidden" id="preview-domisili-wrapper">
+                    <div class="col-md-4">Alamat Domisili:</div>
+                    <div class="col-md-8"><span id="preview_alamat_domisili_pemohon" style="white-space: pre-wrap;"></span></div>
+                </div>
+
                 <div class="row"><div class="col-md-4">Status Rumah:</div><div class="col-md-8"><span id="preview_status_rumah_pemohon"></span></div></div>
                 <div class="row"><div class="col-md-4">Lama Tinggal:</div><div class="col-md-8"><span id="preview_lama_tinggal_tahun"></span> Tahun, <span id="preview_lama_tinggal_bulan"></span> Bulan</div></div>
                 <div class="row"><div class="col-md-4">Tanggal Lahir:</div><div class="col-md-8"><span id="preview_tgl_lahir_pemohon"></span></div></div>
@@ -675,7 +698,7 @@
                 <div class="row"><div class="col-md-4">Usulan Bunga (%):</div><div class="col-md-8"><span id="preview_usulan_bunga_persen"></span></div></div>
                 <div class="row"><div class="col-md-4">Angsuran Diusulkan (Rp):</div><div class="col-md-8"><span id="preview_usulan_angsuran"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Provisi (%):</div><div class="col-md-8"><span id="preview_biaya_provisi_persen"></span></div></div>
-                <div class_w="row"><div class="col-md-4">Biaya Provisi (Rp):</div><div class="col-md-8"><span id="preview_biaya_provisi_nominal"></span></div></div>
+                <div class="row"><div class="col-md-4">Biaya Provisi (Rp):</div><div class="col-md-8"><span id="preview_biaya_provisi_nominal"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Tata Laksana (%):</div><div class="col-md-8"><span id="preview_biaya_tata_laksana_persen"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Tata Laksana (Rp):</div><div class="col-md-8"><span id="preview_biaya_tata_laksana_nominal"></span></div></div>
                 <div class="row"><div class="col-md-4">Biaya Administrasi (Rp):</div><div class="col-md-8"><span id="preview_biaya_administrasi"></span></div></div>
@@ -714,26 +737,44 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        // --- Helper Functions untuk Rupiah ---
+        // --- (PERBAIKAN) Helper Functions untuk Rupiah ---
         function unformatRupiah(value) { return value.replace(/[^0-9]/g, ''); }
         function formatRupiah(value) {
-            let number_string = value.replace(/[^0-9]/g, ''),
-                split = number_string.split(','),
-                sisa = split[0].length % 3,
-                rupiah = split[0].substr(0, sisa),
-                ribuan = split[0].substr(sisa).match(/\d{3}/g);
-            if (ribuan) {
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
+            // Hapus semua karakter non-numerik
+            let number_string = value.replace(/[^0-9]/g, '');
+            // Hapus angka nol di depan (jika ada, cth: 0050000)
+            number_string = number_string.replace(/^0+/, '');
+            
+            if (number_string === "") {
+                return ""; // Kembalikan string kosong jika tidak ada input
             }
-            return split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+
+            // (PERBAIKAN) Menggunakan Regex yang lebih stabil
+            return number_string.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
         }
         function setupRupiahInput(inputId) {
             const input = document.getElementById(inputId);
             if (input) {
                 input.value = formatRupiah(input.value);
                 input.addEventListener('input', function(e) {
-                    input.value = formatRupiah(e.target.value);
+                    // Simpan posisi kursor
+                    let start = e.target.selectionStart;
+                    let end = e.target.selectionEnd;
+                    let originalLength = e.target.value.length;
+
+                    // Format nilai
+                    e.target.value = formatRupiah(e.target.value);
+                    
+                    // Kembalikan posisi kursor
+                    let newLength = e.target.value.length;
+                    let diff = newLength - originalLength;
+                    
+                    // Cek agar kursor tidak lari saat menghapus
+                    if (start === end && diff < 0) {
+                        e.target.setSelectionRange(start + diff + 1, end + diff + 1);
+                    } else {
+                        e.target.setSelectionRange(start + diff, end + diff);
+                    }
                 });
             }
         }
@@ -753,27 +794,28 @@
         const tataLaksanaPersenInput = document.getElementById('biaya_tata_laksana_persen');
         const tataLaksanaNominalInput = document.getElementById('biaya_tata_laksana_nominal');
         
-        // (PERUBAHAN) Referensi DSR ke field baru (Bulan ke-3)
         const pensiunBulan3JumlahInput = document.getElementById('pensiun_bulan_3_jumlah');
         const dsrPemohonInput = document.getElementById('dsr_pemohon');
         
         const biayaAdminInput = document.getElementById('biaya_administrasi');
         const bebasBiayaAdminCheckbox = document.getElementById('bebas_biaya_administrasi');
 
-        // (PERUBAHAN) Disederhanakan
-        // (PERUBAHAN) Disesuaikan
+        // (PERUBAHAN) Referensi Domisili
+        const toggleDomisili = document.getElementById('toggle-domisili');
+        const domisiliFields = document.getElementById('domisili-fields');
+        const domisiliInputs = domisiliFields.querySelectorAll('textarea');
+
         const pairsTerbilang = [
             { input: document.getElementById('blokir_angsuran_total'), output: document.getElementById('blokir_angsuran_total_terbilang') },
             { input: document.getElementById('blokir_angsuran_pindah_gaji'), output: document.getElementById('blokir_angsuran_pindah_gaji_terbilang') },
             { input: document.getElementById('blokir_angsuran_lunas'), output: document.getElementById('blokir_angsuran_lunas_terbilang') }
         ];
 
-        // (PERUBAHAN) Disesuaikan dengan 3 bulan pensiun
         const nominalInputIDs = [
             'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran',
-            'pensiun_bulan_1_jumlah', // <-- Field Purna 1
-            'pensiun_bulan_2_jumlah', // <-- Field Purna 2
-            'pensiun_bulan_3_jumlah', // <-- Field Purna 3 (Acuan DSR)
+            'pensiun_bulan_1_jumlah', 
+            'pensiun_bulan_2_jumlah',
+            'pensiun_bulan_3_jumlah', 
             'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi', 
             'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran',
             'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran',
@@ -890,7 +932,7 @@
             calculateDSR(); 
         }
 
-        // (PERUBAHAN) Kalkulasi DSR untuk Purna (Menggunakan Bulan ke-3)
+        // Kalkulasi DSR untuk Purna (Menggunakan Bulan ke-3)
         function calculateDSR() {
             const penghasilan = parseFloat(unformatRupiah(pensiunBulan3JumlahInput.value)) || 0;
             const angsuranUsulan = parseFloat(unformatRupiah(angsuranUsulanInput.value)) || 0;
@@ -915,7 +957,6 @@
         }
 
         // --- (Fungsi Toggle) ---
-        // (PERBAIKAN) Logika 'else' diubah untuk meng-enable SEMUA input
         function handleNihilToggle() {
             if (toggleNihil.checked) {
                 allFacilitiesWrapper.style.display = 'none';
@@ -923,13 +964,10 @@
                 addSlikButton.disabled = true;
             } else {
                 allFacilitiesWrapper.style.display = 'block';
-                // (PERBAIKAN DI SINI)
-                // Aktifkan semua input, termasuk .toggle-alasan
                 allFacilitiesWrapper.querySelectorAll('input').forEach(input => {
                     input.disabled = false;
                 });
                 addSlikButton.disabled = false;
-                // Fungsi ini akan menangani disable/enable pada textarea
                 initAlasanCheckboxes(); 
             }
             calculateDSR(); 
@@ -966,6 +1004,20 @@
                 biayaAdminInput.value = '';
             } else if (biayaAdminInput) {
                 biayaAdminInput.disabled = false;
+            }
+        }
+
+        // (PERUBAHAN) Fungsi toggle untuk Domisili
+        function handleDomisiliToggle() {
+            if (toggleDomisili.checked) {
+                domisiliFields.style.display = 'block';
+                domisiliInputs.forEach(input => input.disabled = false);
+            } else {
+                domisiliFields.style.display = 'none';
+                domisiliInputs.forEach(input => {
+                    input.disabled = true;
+                    input.value = ''; // Kosongkan saat disembunyikan
+                });
             }
         }
 
@@ -1033,6 +1085,15 @@
                     }
                 }
             }
+
+            // (PERUBAHAN) Logika Preview Domisili
+            const previewDomisiliWrapper = document.getElementById('preview-domisili-wrapper');
+            if (toggleDomisili.checked && document.getElementById('alamat_domisili_pemohon').value) {
+                // 'flex' digunakan oleh Bootstrap .row
+                previewDomisiliWrapper.style.display = 'flex'; 
+            } else {
+                previewDomisiliWrapper.style.display = 'none';
+            }
             
             const listPenandatanganan = document.getElementById('preview-list-penandatanganan');
             const listPencairan = document.getElementById('preview-list-pencairan');
@@ -1079,7 +1140,11 @@
             bebasBiayaAdminCheckbox.addEventListener('change', handleBebasAdminToggle);
         }
 
-        // (PERUBAHAN) Listener DSR ke field Purna (Bulan ke-3)
+        // (PERUBAHAN) Listener untuk Domisili
+        if (toggleDomisili) {
+            toggleDomisili.addEventListener('change', handleDomisiliToggle);
+        }
+
         if (pensiunBulan3JumlahInput) pensiunBulan3JumlahInput.addEventListener('input', calculateDSR);
         
         for (let i = 1; i <= maxFacilities; i++) {
@@ -1235,19 +1300,25 @@
             const isNihilString = "{{ data.get('fasilitas_nihil', 'no') }}";
             const isMitigasiString = "{{ data.get('mitigasi_aktif', 'no') }}";
             const isBebasAdminString = "{{ data.get('bebas_biaya_administrasi', 'no') }}"; 
+            // (PERUBAHAN)
+            const isDomisiliBerbedaString = "{{ data.get('domisili_berbeda', 'no') }}";
             
             const isNihil = (isNihilString === 'ya');
             const isMitigasi = (isMitigasiString === 'ya');
             const isBebasAdmin = (isBebasAdminString === 'ya'); 
+            // (PERUBAHAN)
+            const isDomisiliBerbeda = (isDomisiliBerbedaString === 'ya');
 
             toggleNihil.checked = isNihil;
             toggleMitigasi.checked = isMitigasi;
             if (bebasBiayaAdminCheckbox) bebasBiayaAdminCheckbox.checked = isBebasAdmin; 
+            if (toggleDomisili) toggleDomisili.checked = isDomisiliBerbeda;
             
             handleNihilToggle();
             handleMitigasiToggle();
             initAlasanCheckboxes();
             if (bebasBiayaAdminCheckbox) handleBebasAdminToggle(); 
+            if (toggleDomisili) handleDomisiliToggle();
             
             let allSlikVisible = true;
             for (let i = 2; i <= maxFacilities; i++) {
