@@ -22,27 +22,39 @@ db = SQLAlchemy(app)
 TEMPLATE_FILENAME_DEFAULT = "template_kredit.docx"
 ALLOWED_EXTENSIONS = {'docx'}
 
-# Daftar kategori produk
+# (PERUBAHAN) Daftar kategori produk sekarang mendukung segmen
 PRODUCT_CATEGORIES = {
     'prapurna_reguler': {
         'nama': 'BNI Fleksi Pensiun Prapurna Reguler',
         'template_form': 'form_prapurna_reguler.html',
-        'template_docx': 'template_prapurna_reguler.docx'
+        'template_docx': {
+            'taspen': 'template_prapurna_reguler_taspen.docx',
+            'asabri': 'template_prapurna_reguler_asabri.docx'
+        }
     },
     'prapurna_takeover': {
         'nama': 'BNI Fleksi Pensiun Prapurna Take Over',
         'template_form': 'form_prapurna_takeover.html', 
-        'template_docx': 'template_prapurna_takeover.docx'
+        'template_docx': {
+            'taspen': 'template_prapurna_takeover_taspen.docx',
+            'asabri': 'template_prapurna_takeover_asabri.docx'
+        }
     },
     'purna_reguler': {
         'nama': 'BNI Fleksi Pensiun Purna Reguler',
         'template_form': 'form_purna_reguler.html', 
-        'template_docx': 'template_purna_reguler.docx'
+        'template_docx': {
+            'taspen': 'template_purna_reguler_taspen.docx',
+            'asabri': 'template_purna_reguler_asabri.docx'
+        }
     },
     'purna_takeover': {
         'nama': 'BNI Fleksi Pensiun Purna Take Over',
         'template_form': 'form_purna_takeover.html', 
-        'template_docx': 'template_purna_takeover.docx'
+        'template_docx': {
+            'taspen': 'template_purna_takeover_taspen.docx',
+            'asabri': 'template_purna_takeover_asabri.docx'
+        }
     }
 }
 
@@ -66,7 +78,6 @@ def format_date_indonesian(date_str):
     except (ValueError, TypeError):
         return date_str 
 
-# (PERUBAHAN) Menambahkan key tanggal baru untuk Purna
 DATE_KEYS = [
     'tgl_lahir_pemohon', 'tgl_terbit_ktp', 'tgl_mulai_kerja',
     'tgl_sk_cpns', 'tgl_sk_golongan', 'tgl_pensiun_pemohon',
@@ -74,23 +85,19 @@ DATE_KEYS = [
     'tgl_pensiun_tmt', 'tgl_sk_pensiun' 
 ]
 
-# (PERUBAHAN) Ini adalah DAFTAR MASTER dari SEMUA field nominal
 NOMINAL_KEYS = [
     'plafon_kredit_dimohon', 'usulan_plafon_kredit', 'usulan_angsuran', 
     'biaya_provisi_nominal', 'biaya_tata_laksana_nominal', 'biaya_administrasi',
     
-    # Field Prapurna
     'gaji_bulan_1_jumlah', 'gaji_bulan_2_jumlah', 'gaji_bulan_3_jumlah',
     'estimasi_hak_pensiun', 'taspen_tht', 'taspen_hak_pensiun',
     'info_gaji_bendahara',
     
-    # Field Purna (BARU)
     'pensiun_bulan_1_jumlah', 
     'pensiun_bulan_2_jumlah',
     'pensiun_bulan_3_jumlah',
-    'pensiun_bulan_jumlah', # <-- Untuk Purna Reguler
+    'pensiun_bulan_jumlah',
     
-    # Field SLIK (Umum)
     'slik_bank_1_maks', 'slik_bank_1_outs', 'slik_bank_1_angsuran', 
     'slik_bank_2_maks', 'slik_bank_2_outs', 'slik_bank_2_angsuran', 
     'slik_bank_3_maks', 'slik_bank_3_outs', 'slik_bank_3_angsuran', 
@@ -123,7 +130,7 @@ def calculate_pmt(principal, annual_rate_percent, months):
     except (ValueError, TypeError, ZeroDivisionError):
         return 0
 
-# --- MODEL DATABASE ---
+# --- MODEL DATABASE (PERUBAHAN) ---
 class Debitur(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nama_pemohon = db.Column(db.String(100), nullable=False)
@@ -131,6 +138,8 @@ class Debitur(db.Model):
     tanggal_input = db.Column(db.DateTime, default=datetime.utcnow)
     data_lengkap = db.Column(db.Text, nullable=False)
     kategori = db.Column(db.String(50), nullable=False, default='prapurna_reguler')
+    # (PERUBAHAN) Kolom baru untuk TASPEN / ASABRI
+    segmentasi = db.Column(db.String(10), nullable=False, default='taspen')
 
 # --- ROUTES ---
 
@@ -153,7 +162,8 @@ def new_form(kategori):
         flash(f"Formulir untuk '{product['nama']}' sedang dalam pengembangan.", 'info')
         return redirect(url_for('index'))
         
-    return render_template(product['template_form'], data={}, kategori=kategori)
+    # (PERUBAHAN) 'segmentasi' diset 'taspen' sebagai default untuk form baru
+    return render_template(product['template_form'], data={}, kategori=kategori, segmentasi='taspen')
 
 @app.route('/riwayat')
 def riwayat():
@@ -179,6 +189,8 @@ def edit(id):
     debitur = Debitur.query.get_or_404(id)
     data = json.loads(debitur.data_lengkap)
     kategori = debitur.kategori
+    # (PERUBAHAN) Ambil 'segmentasi' dari DB
+    segmentasi = debitur.segmentasi 
     
     if kategori not in PRODUCT_CATEGORIES:
         flash('Kategori produk debitur ini tidak valid.', 'danger')
@@ -192,13 +204,16 @@ def edit(id):
         flash(f"Formulir edit untuk '{product['nama']}' sedang dalam pengembangan.", 'info')
         return redirect(url_for('riwayat'))
 
-    return render_template(template_name, data=data, debitur_id=debitur.id, kategori=kategori)
+    # (PERUBAHAN) Kirim 'segmentasi' ke template
+    return render_template(template_name, data=data, debitur_id=debitur.id, kategori=kategori, segmentasi=segmentasi)
 
 @app.route('/simpan', methods=['POST'])
 def simpan():
     form_data = request.form.to_dict()
     debitur_id = form_data.pop('debitur_id', None)
     kategori = form_data.pop('kategori', 'prapurna_reguler') 
+    # (PERUBAHAN) Ambil 'segmentasi' dari form
+    segmentasi = form_data.pop('segmentasi', 'taspen') 
 
     if kategori not in PRODUCT_CATEGORIES:
         flash('Kategori produk tidak valid saat menyimpan.', 'danger')
@@ -215,12 +230,14 @@ def simpan():
             debitur.no_ktp = form_data.get('no_ktp_pemohon', '000')
             debitur.data_lengkap = json.dumps(form_data)
             debitur.kategori = kategori 
+            debitur.segmentasi = segmentasi # <-- Simpan segmentasi
         else:
             new_debitur = Debitur(
                 nama_pemohon=form_data.get('nama_pemohon', 'Tanpa Nama'),
                 no_ktp=form_data.get('no_ktp_pemohon', '000'),
                 data_lengkap=json.dumps(form_data),
-                kategori=kategori 
+                kategori=kategori,
+                segmentasi=segmentasi # <-- Simpan segmentasi
             )
             db.session.add(new_debitur)
         
@@ -235,12 +252,21 @@ def generate_docx(id):
     debitur = Debitur.query.get_or_404(id)
     context = json.loads(debitur.data_lengkap)
     kategori = debitur.kategori
+    # (PERUBAHAN) Ambil 'segmentasi' dan tambahkan ke context
+    segmentasi = debitur.segmentasi
+    context['segmentasi'] = segmentasi 
 
     if kategori not in PRODUCT_CATEGORIES:
         return f"Error: Kategori produk '{kategori}' tidak dikenal.", 404
         
     product = PRODUCT_CATEGORIES[kategori]
-    template_docx_name = product.get('template_docx', TEMPLATE_FILENAME_DEFAULT)
+    
+    # (PERUBAHAN) Pilih template .docx berdasarkan segmentasi
+    try:
+        template_docx_name = product['template_docx'][segmentasi]
+    except KeyError:
+        # Fallback jika segmen tidak punya template
+        template_docx_name = product['template_docx'].get('taspen', TEMPLATE_FILENAME_DEFAULT)
             
     # --- BLOK KALKULASI RPC & DSR ---
     try:
@@ -258,20 +284,15 @@ def generate_docx(id):
                 angsuran_str = context.get(key, '0').replace('.', '')
                 total_angsuran_eksisting += int(angsuran_str) if angsuran_str.isdigit() else 0
         
-        # (PERBAIKAN LOGIKA)
+        # (Logika DSR yang sudah benar)
         if kategori.startswith('prapurna'):
-            # Kategori Prapurna menggunakan 'estimasi_hak_pensiun'
             penghasilan_str = context.get('estimasi_hak_pensiun', '0').replace('.', '')
         else: 
-            # Kategori Purna
             if kategori == 'purna_takeover':
-                # Purna Take Over menggunakan gaji bulan ke-3
                 penghasilan_str = context.get('pensiun_bulan_3_jumlah', '0').replace('.', '')
-            else:
-                # Purna Reguler menggunakan satu-satunya input gaji
+            else: # purna_reguler
                 penghasilan_str = context.get('pensiun_bulan_jumlah', '0').replace('.', '')
 
-            # Fallback untuk Purna (jika gaji 0, gunakan 'taspen_hak_pensiun' jika ada)
             if not penghasilan_str or float(penghasilan_str) == 0:
                 penghasilan_str = context.get('taspen_hak_pensiun', '0').replace('.', '')
             
@@ -299,7 +320,6 @@ def generate_docx(id):
     
     # --- MEMBUAT DAFTAR BANK & SYARAT KUSTOM ---
     try:
-        # 1. Daftar Bank Take Over
         takeover_banks = []
         if context.get('fasilitas_nihil') != 'ya' and kategori.endswith('takeover'):
             for i in range(1, 16):
@@ -309,17 +329,16 @@ def generate_docx(id):
                     takeover_banks.append(context.get(bank_name_key))
         context['takeover_bank_list'] = ", ".join(takeover_banks)
         
-        # 2. Daftar Syarat Kustom
         syarat_penandatanganan_list = []
         syarat_pencairan_list = []
-        for i in range(1, 11): # Sesuai 10 field di HTML
+        for i in range(1, 11): 
             teks_key = f'syarat_kustom_{i}_teks'
             lokasi_key = f'syarat_kustom_{i}_lokasi'
             
             teks = context.get(teks_key)
             lokasi = context.get(lokasi_key)
             
-            if teks: # Hanya jika ada teks syarat
+            if teks: 
                 if lokasi == 'penandatanganan':
                     syarat_penandatanganan_list.append(teks)
                 elif lokasi == 'pencairan':
@@ -397,6 +416,7 @@ def hapus(id):
 def admin():
     return render_template('admin.html', categories=PRODUCT_CATEGORIES)
 
+# (PERUBAHAN) Rute upload disesuaikan dengan dropdown
 @app.route('/upload_template', methods=['POST'])
 def upload_template():
     if 'file' not in request.files:
@@ -405,9 +425,10 @@ def upload_template():
     
     file = request.files['file']
     kategori = request.form.get('kategori')
+    segmentasi = request.form.get('segmentasi')
 
-    if not kategori or kategori not in PRODUCT_CATEGORIES:
-        flash('Kategori template tidak valid.', 'danger')
+    if not all([kategori, segmentasi, kategori in PRODUCT_CATEGORIES, segmentasi in ['taspen', 'asabri']]):
+        flash('Kategori atau segmentasi tidak valid.', 'danger')
         return redirect(url_for('admin'))
         
     if file.filename == '':
@@ -415,7 +436,12 @@ def upload_template():
         return redirect(url_for('admin'))
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(PRODUCT_CATEGORIES[kategori]['template_docx'])
+        try:
+            filename = secure_filename(PRODUCT_CATEGORIES[kategori]['template_docx'][segmentasi])
+        except KeyError:
+            flash('Error pada struktur PRODUCT_CATEGORIES di app.py.', 'danger')
+            return redirect(url_for('admin'))
+
         save_path = os.path.join(app.root_path, filename)
         
         try:
